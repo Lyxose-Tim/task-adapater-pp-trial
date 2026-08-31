@@ -1,0 +1,29 @@
+# 本地验证训练·试水档（2026-07-19 用户拍板：先本地抽样验证，再云端正式 B0）
+# 数据：data/verify —— 训练 16 类×25 段（训练划分抽样，seed 916），
+#       测试 24 个测试类×25 段（保持"新类"元测试协议，可与论文口径对照）。
+# 只缩数据量与迭代数；帧数/分辨率/way/shot/query/K 与正式配置一致。
+# 经 TA_CONFIG=config_verify.yaml 加载。数值仅作代码有效性参考，不进 ledger。
+dataset: "somethingcmn"
+dataset_base_path: "data/verify/"
+method: "taskadapter"
+train_n_way: 5
+test_n_way: 5
+n_query: 1
+n_shot: 1
+num_gpus: 1
+train_aug: True
+work_dir: "./workspace_verify/"
+num_segments: 8
+train_episode: 150
+test_episode: 300
+eval_episode: 50
+test_model: False
+load_weights: False
+checkpoint: ""
+start_epoch: 0
+stop_epoch: 3
+warm_up_epoch: 1
+text_depth: 2
+lr: 0.001
+num_workers: 4
+message: "local-verify-trial-16x25"

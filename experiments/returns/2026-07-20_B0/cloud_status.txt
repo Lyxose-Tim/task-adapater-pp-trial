@@ -1,0 +1,30 @@
+B0 云端状态（2026-08-29 18:22 UTC 快照）
+
+实例：RTX 3090 24GB，主机 jupyter-ci62hogqnrvjt8rv
+（历史快照：本跑当时的计算节点。2026-08-30 起连云改为 sc01-ssh.gpuhome.cc:30448 / jupyter-jwttqv4oex5hy52b，见 experiments/returns/2026-08-30_B0_torch222/）
+工作目录：/root/rivermind-data/ta-pp
+解释器：/opt/conda/bin/python（torch 2.1.0+cu121）
+CLIP JIT：/root/rivermind-data/ta-pp/dataset/checkpoints/ViT-B-16.pt
+CLIP_VIT_B16_PATH 已设置
+
+数据体检（SSv2-Small / CMN）：
+- train.txt 6400 行（64 类 × 100 段）
+- val.txt / test.txt 各 2400 行（24 类 × 100 段）
+- frames 目录 8800 个；帧名 img_00001.jpg 起连续
+
+小规模试跑（config_mini.yaml，8 类×8 段，2 epoch×20 ep）：
+- Epoch 0 Loss 1.521631 Acc 36.00% ± 7.64%
+- Epoch 1 Loss 1.042114 Acc 59.00% ± 11.25%；Val 68.00% ± 8.59%；保存 68.0.tar
+- 终测 10 ep Acc 70.00% ± 11.43%
+- 墙钟约 1–2 分钟（全程）
+- 日志：mini_trial.log / mini_workspace_log.txt
+
+全量 B0（config_b0.yaml，代号 b0-ssv2small-5w1s-formal）：
+- 已于 2026-08-29 18:18:19 UTC 启动（nohup PID 14929）
+- 显存峰值（nvidia-smi）：14661 MiB（约 14.3 GB），GPU-Util 100%
+- 日志：workspace_b0/.../2026-08-29_18-18-19/log.txt
+- 控制台：/root/rivermind-data/b0_console.log
+- Epoch 按 1000 episode 才打印一行；warm_up_epoch=8，前 9 个 epoch 只印 Wait...
+- 预计：按试跑 ~1.6 s/ep 粗算，训练 10×1000 + 终测 10000 ≈ 8–12 小时（待 epoch 0 墙钟校准）
+
+说明：此处「全量」= 交接包② 的 SSv2-Small 正式定标，不是 Something-Something V2 全部 174 类。

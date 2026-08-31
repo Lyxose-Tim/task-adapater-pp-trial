@@ -1,0 +1,26 @@
+# Paired order diagnosis on the frozen B0 checkpoint (development scale).
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation3_ssv2_3a_dev
+  phase: diagnosis_3a_development
+  message: ss2_small_5way_1shot_3a_1000
+
+episodes:
+  test: 1000
+
+m0:
+  enabled: false
+
+diagnosis_3a:
+  enabled: true
+  development_episodes: 1000
+  final_episodes: 10000
+
+regularizer_3b:
+  enabled: false
+
+output:
+  root: ../outputs/innovation3/ssv2/3a/development
+  run_metrics: ../outputs/innovation3/ssv2/3a/development/run_metrics.csv
+  save_checkpoint: false

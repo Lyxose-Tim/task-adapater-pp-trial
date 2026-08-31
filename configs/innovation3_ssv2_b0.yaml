@@ -1,0 +1,21 @@
+# Formal fixed-window B0 baseline. The train command automatically evaluates
+# 10,000 test episodes after restoring this run's best checkpoint.
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation3_ssv2_b0
+  phase: b0_baseline
+  message: ss2_small_5way_1shot_b0
+
+m0:
+  enabled: false
+
+diagnosis_3a:
+  enabled: false
+
+regularizer_3b:
+  enabled: false
+
+output:
+  root: ../outputs/innovation3/ssv2/b0
+  run_metrics: ../outputs/innovation3/ssv2/b0/run_metrics.csv

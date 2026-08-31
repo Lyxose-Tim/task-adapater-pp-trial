@@ -1,0 +1,25 @@
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation3_hmdb51
+  message: hmdb51_5way_1shot
+
+runtime:
+  amp: false
+  allow_tf32: false
+
+model:
+  checkpoint: ../dataset/checkpoints/ViT-B-16.pt
+
+data:
+  name: hmdb51
+  root: ../dataset/HMDB51
+  corpus: ../corpus/classes_hmdb51_fsar.yml
+  splits:
+    train: ../dataset/HMDB51/annotations/train.txt
+    val: ../dataset/HMDB51/annotations/val.txt
+    test: ../dataset/HMDB51/annotations/test.txt
+
+output:
+  root: ../outputs/innovation3/hmdb51
+  run_metrics: ../outputs/innovation3/hmdb51/run_metrics.csv

@@ -1,0 +1,16 @@
+# Short throughput probe only; never use these counts as experimental results.
+defaults: innovation3_ssv2_smoke.yaml
+
+experiment:
+  name: innovation3_ssv2_train10_benchmark
+  phase: throughput_probe
+  message: ss2_small_train10_throughput_only
+
+m0:
+  smoke_train_episodes: 10
+  smoke_val_episodes: 1
+  smoke_test_episodes: 1
+
+output:
+  root: ../outputs/innovation3/ssv2/throughput_train10
+  run_metrics: ../outputs/innovation3/ssv2/throughput_train10/run_metrics.csv

@@ -1,0 +1,14 @@
+# Innovation 1 step B: order prior enabled, balanced stage marginal.
+defaults: innovation1_balanced.yaml
+
+experiment:
+  name: innovation1_ordered_ot
+  phase: innovation1_step_b
+
+model:
+  ot:
+    lambda_pos: 1.0
+
+output:
+  root: ../outputs/innovation1/ordered
+  run_metrics: ../outputs/innovation1/ordered/run_metrics.csv

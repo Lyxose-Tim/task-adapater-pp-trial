@@ -1,0 +1,7 @@
+lr= 0.001
+Epoch 0 | Loss 1.521631 Acc = 36.00% +- 7.64% | Wait...
+Epoch 1 | Loss 1.042114 Acc = 59.00% +- 11.25% | 5 Val Acc = 68.00% +- 8.59%
+best model! save...
+/opt/conda/lib/python3.10/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
+  return self.fget.__get__(instance, owner)()
+10 Test Acc = 70.00% +- 11.43%

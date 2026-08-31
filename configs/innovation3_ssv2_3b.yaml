@@ -1,0 +1,24 @@
+# Formal B0 + order-margin regularizer training and 10,000-episode evaluation.
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation3_ssv2_3b
+  phase: regularizer_3b
+  message: ss2_small_5way_1shot_3b_margin
+
+m0:
+  enabled: false
+
+diagnosis_3a:
+  enabled: false
+
+regularizer_3b:
+  enabled: true
+  kind: margin
+  weight: 0.1
+  margin: 0.1
+  negative_permutations: 1
+
+output:
+  root: ../outputs/innovation3/ssv2/3b/train
+  run_metrics: ../outputs/innovation3/ssv2/3b/train/run_metrics.csv

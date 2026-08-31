@@ -1,0 +1,15 @@
+# M13 combination: selected ordered/unbalanced OT + v2 corpus + probability
+# fusion and adaptive-alpha hooks. Keep separate from every component ablation.
+defaults: innovation124.yaml
+
+experiment:
+  name: innovation124_ssv2
+  phase: combined_m13
+  message: ss2_small_innovation_1_2_4
+
+corpus_v2:
+  enabled: true
+
+output:
+  root: ../outputs/innovation124/ssv2
+  run_metrics: ../outputs/innovation124/ssv2/run_metrics.csv

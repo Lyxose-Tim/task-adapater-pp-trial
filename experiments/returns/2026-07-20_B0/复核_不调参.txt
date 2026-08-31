@@ -1,0 +1,82 @@
+B0 不调参复核（手册·六 风险清单）
+日期：2026-08-30
+对照：终测 57.24%±0.41% vs 论文 63.6（差 6.36pt）
+原则：只核对数据 / CLIP / 实现与协议，不改 lr、episode、架构、损失。
+
+────────────────────────────────
+① 数据（划分、抽帧、帧数字段、采样协议）
+
+本地 CMN 标注（dataset/smsm_cmn/annotations）
+- train：64 类 × 100 段 = 6400，label 0–63
+- val：  12 类 × 100 段 = 1200，label 64–75
+- test： 24 类 × 100 段 = 2400，label 76–99
+- 每类段数均为恰好 100（无多采、无少采）
+
+make_mini_subset.py 在「每类恰好 100、类数恰好 64/24」时，
+rng.sample(eligible, k) 与 rng.sample(clips, 100) 的集合等于全集
+（seed 916 模拟：train/test 均为 class set equal 且 clip set equal）。
+
+云端 data/full 与仓库内原始标注逐条对照（stem + 帧数 + 类 id）：
+- train vs train：类集合相同，clip missing/extra=0，nframes_diff=0
+- test vs test：同上，nframes_diff=0
+- 抽帧后 annotation 的帧数字段与目录内 img_*.jpg 个数：抽查 80 段 mismatch=0
+- 官方 8 段采样用的就是该帧数字段（dataset.py SubVideoDataset）
+
+val 文件：
+- 磁盘上 full/val.txt 被交接包写成 test 同内容（24 类）
+- 但 run.py somethingcmn 分支硬编码 val_file=test_file=smsm_cmn/annotations/test.txt
+  （Task-Adapter-pp/run.py:179-182），12 类 val.txt 本来就不会进入训练/选型/终测
+- 此行为与上游默认一致，不是本次抽帧脚本独有错误
+- 手册「64/12/24」中的 12 类 val 在本代码路径上从未使用
+
+结论①：划分、片段集合、帧数字段、8 段采样输入与 CMN 标注一致。
+不能用「抽错类 / 抽少子集 / 帧数写错」解释 6.36pt。
+
+────────────────────────────────
+② CLIP 权重来源与 fp16 路径
+
+- 云端与本地 ViT-B-16.pt 均为 350837078 字节
+- SHA256 均为 5806e77cd80f8b59890b7e101eabd078d9fb84e6937f9e85e4ecb61988df416f
+  （与 OpenAI 官方下载 URL 中的哈希相同）
+- 加载方式：torch.jit.load → visual.state_dict（module_adapter.py）
+- 训练循环 autocast 关闭（run.py 注释掉 autocast，走 fp32 反传）
+- 相似度仍走上游 cosine_similarity 的 fp16 matmul（utils.py:28），与手册登记一致
+
+结论②：权重是官方 JIT，非 HF / 非中文 CLIP；fp16 用法与上游一致。
+不能用「下错 CLIP / 误开整网 fp16」解释 6.36pt。
+
+────────────────────────────────
+③ 超参与实现（核对，不改）
+
+与上游 config.yaml 协议字段一致：
+5way/1shot/1query、num_segments=8、train_episode=1000、test_episode=10000、
+eval_episode=1000、stop_epoch=10、warm_up_epoch=8、lr=0.001、train_aug=True、
+seed 916（run.py setup_seed）。
+
+仅环境/工程差：
+- num_gpus：上游 3 → B0 为 1（单卡 3090；无 BN 主干，预期非 6pt 量级）
+- num_workers：8（可配）
+- method / dataset_base_path / message：运行所必需
+- torch：云端 conda 2.1.0+cu121，requirements 写 2.2.2+cu121（无对照实验，不能定量）
+
+P1：返回 (vis, sem) 与 run.py 接收一致；融合为 vis*sem，乘法可交换，
+     不改变终分 argmax（手册/代码注释已写明）。
+P2：语义分转置使 vis/sem 同为 (N_Q, n_way)。n_query=1 时旧朝向会广播成
+     5×5 再与长度为 5 的 y_query 算 CE，修复后形状语义正确。
+     手册：P2 导致基线相对论文移动属预期。此为实现差异中唯一已定性、
+     且允许数个百分点移动的项；本次未做「关 P2 复跑」故不能把 6.36pt
+     全部归到 P2。
+
+warm_up=8：仅 epoch>8 做 val，即只有 epoch 9 一次选型，与上游默认相同。
+
+结论③：协议超参未改。剩余不可排除项是 P2（预期）与 torch 次版本（未定量），
+不是 lr/episode 设错。
+
+────────────────────────────────
+总判断
+
+数据与 CLIP 两项已用集合相等 + SHA256 钉死，不是 6pt 落差的来源。
+按风险清单不应调参。B0=57.24±0.41 维持为后续对照。
+
+若要量化 P2 贡献：需在同一数据/权重上关转置再训（那是新实验，不是本次复核）。
+若要量化 torch 2.1 vs 2.2：同样需要对照跑，本次不做。

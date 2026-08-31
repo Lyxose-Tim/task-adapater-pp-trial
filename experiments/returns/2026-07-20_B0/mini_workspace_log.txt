@@ -1,0 +1,7 @@
+[Message]mini-smoke
+{'dataset': 'somethingcmn', 'method': 'taskadapter', 'stop_epoch': 2, 'n_query': 1, 'n_shot': 1, 'lr': 0.001}
+2026-08-29_18-14-22
+Epoch 0 | Loss 1.521631 Acc = 36.00% +- 7.64% | 2026-08-29_18-14-38
+Epoch 1 | Loss 1.042114 Acc = 59.00% +- 11.25% | 5 Val Acc = 68.00% +- 8.59%
+best model! save...
+10 Test Acc = 70.00% +- 11.43%

@@ -1,0 +1,25 @@
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation3_ucf101
+  message: ucf101_5way_1shot
+
+runtime:
+  amp: false
+  allow_tf32: false
+
+model:
+  checkpoint: ../dataset/checkpoints/ViT-B-16.pt
+
+data:
+  name: ucf101
+  root: ../dataset/UCF101/UCF-101
+  corpus: ../corpus/classes_ucf101_fsar.yml
+  splits:
+    train: ../dataset/UCF101/annotations/train.txt
+    val: ../dataset/UCF101/annotations/val.txt
+    test: ../dataset/UCF101/annotations/test.txt
+
+output:
+  root: ../outputs/innovation3/ucf101
+  run_metrics: ../outputs/innovation3/ucf101/run_metrics.csv

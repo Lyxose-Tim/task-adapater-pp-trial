@@ -1,0 +1,25 @@
+B0 torch 2.2.2 对照（2026-08-30 06:27 UTC 启动快照）
+
+实例：RTX 3090 24GB，主机 jupyter-jwttqv4oex5hy52b
+SSH：sc01-ssh.gpuhome.cc:30448（计算节点已换，PVC /root/rivermind-data 仍挂载）
+工作目录：/root/rivermind-data/ta-pp
+解释器：/opt/conda/bin/python（已从 2.1.0+cu121 升级为 torch 2.2.2+cu121 / torchvision 0.17.2+cu121）
+系统盘 overlay：安装后约 7.8G/30G（余 22G）
+CLIP JIT：/root/rivermind-data/ta-pp/dataset/checkpoints/ViT-B-16.pt（未改）
+对照变量：仅 torch/vision 版本；数据、配置协议、种子与 B0 正式跑一致
+work_dir：./workspace_b0_torch222/（不覆盖 workspace_b0）
+message：b0-ssv2small-5w1s-torch222
+实验目录：workspace_b0_torch222/.../2026-08-30_06-27-27/
+进程：run.py PID 494（nohup）
+启动后显存：14661 MiB / util 100%（与 torch 2.1.0 B0 峰值同量级）
+控制台：/root/rivermind-data/b0_torch222_console.log
+显存日志：/root/rivermind-data/nvidia_b0_torch222.csv
+
+进度（2026-08-30 09:27 UTC 复核，主机 jupyter-jwttqv4oex5hy52b）：
+- 训练 10 epoch 完成；Loss 1.177→0.306；Epoch 9 Val 56.32%±1.28%，已存 best
+- 终测进行中：7000/10000，滚动均值约 56.88%（尚未出 10000 Test Acc）
+- GPU：14785 MiB，功耗 ~312W；面板无数据不影响，以 nvidia-smi / nvidia_b0_torch222.csv 为准
+- 当前 SSH：sc01-ssh.gpuhome.cc:30448（本地 Host gpuhome 已指向此端口）
+
+旧 B0（57.24%）workspace 仍在：workspace_b0/.../2026-08-29_18-18-19/
+本对照完成前不改 ledger 中的 57.24 行。

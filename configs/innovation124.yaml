@@ -1,0 +1,42 @@
+# Recommended combined code path: ordered, one-sided unbalanced OT + v2 hooks
+# + probability fusion. Dataset paths remain SSv2-Small and fail fast until the
+# licensed archive has been supplied by the user.
+defaults: innovation1_ordered.yaml
+
+experiment:
+  name: innovation124
+  phase: combined_m13
+
+model:
+  semantic_backend: ot
+  ot_frame_source: aligned
+  ot:
+    epsilon: 0.05
+    lambda_pos: 1.0
+    rho: 0.5
+    iterations: 30
+  fusion:
+    mode: probability_product
+    alpha: 0.5
+    visual_temperature: 1.0
+    semantic_temperature: 1.0
+
+corpus_v2:
+  enabled: false
+  path: ../corpus/classes_somethingcmn_v2.json
+  online_support_selection: true
+  training_selection: true
+  tie_break: smaller_k
+  candidate_k: [2, 3, 4, 5]
+
+pseudo_validation:
+  enabled: true
+  views: 4
+  alpha_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  global_alpha: 0.5
+  flat_tolerance: 1.0e-12
+  horizontal_flip: false
+
+output:
+  root: ../outputs/innovation124
+  run_metrics: ../outputs/innovation124/run_metrics.csv

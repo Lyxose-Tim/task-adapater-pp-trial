@@ -1,0 +1,13 @@
+torch>=2.0
+torchvision
+open-clip-torch
+decord
+einops
+numpy
+Pillow
+scipy
+pyyaml
+tqdm
+scikit-learn
+pandas
+pytest

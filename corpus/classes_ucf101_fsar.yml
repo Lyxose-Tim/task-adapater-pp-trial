@@ -1,0 +1,606 @@
+apply eye makeup:
+  label: apply eye makeup
+  sub_act_en_li:
+  - prepare to apply eye makeup
+  - perform apply eye makeup
+  - complete apply eye makeup
+archery:
+  label: archery
+  sub_act_en_li:
+  - prepare to archery
+  - perform archery
+  - complete archery
+baby crawling:
+  label: baby crawling
+  sub_act_en_li:
+  - prepare to baby crawling
+  - perform baby crawling
+  - complete baby crawling
+balance beam:
+  label: balance beam
+  sub_act_en_li:
+  - prepare to balance beam
+  - perform balance beam
+  - complete balance beam
+band marching:
+  label: band marching
+  sub_act_en_li:
+  - prepare to band marching
+  - perform band marching
+  - complete band marching
+baseball pitch:
+  label: baseball pitch
+  sub_act_en_li:
+  - prepare to baseball pitch
+  - perform baseball pitch
+  - complete baseball pitch
+basketball:
+  label: basketball
+  sub_act_en_li:
+  - prepare to basketball
+  - perform basketball
+  - complete basketball
+basketball dunk:
+  label: basketball dunk
+  sub_act_en_li:
+  - prepare to basketball dunk
+  - perform basketball dunk
+  - complete basketball dunk
+bench press:
+  label: bench press
+  sub_act_en_li:
+  - prepare to bench press
+  - perform bench press
+  - complete bench press
+biking:
+  label: biking
+  sub_act_en_li:
+  - prepare to biking
+  - perform biking
+  - complete biking
+billiards:
+  label: billiards
+  sub_act_en_li:
+  - prepare to billiards
+  - perform billiards
+  - complete billiards
+blow dry hair:
+  label: blow dry hair
+  sub_act_en_li:
+  - prepare to blow dry hair
+  - perform blow dry hair
+  - complete blow dry hair
+body weight squats:
+  label: body weight squats
+  sub_act_en_li:
+  - prepare to body weight squats
+  - perform body weight squats
+  - complete body weight squats
+bowling:
+  label: bowling
+  sub_act_en_li:
+  - prepare to bowling
+  - perform bowling
+  - complete bowling
+boxing punching bag:
+  label: boxing punching bag
+  sub_act_en_li:
+  - prepare to boxing punching bag
+  - perform boxing punching bag
+  - complete boxing punching bag
+boxing speed bag:
+  label: boxing speed bag
+  sub_act_en_li:
+  - prepare to boxing speed bag
+  - perform boxing speed bag
+  - complete boxing speed bag
+breast stroke:
+  label: breast stroke
+  sub_act_en_li:
+  - prepare to breast stroke
+  - perform breast stroke
+  - complete breast stroke
+brushing teeth:
+  label: brushing teeth
+  sub_act_en_li:
+  - prepare to brushing teeth
+  - perform brushing teeth
+  - complete brushing teeth
+cricket bowling:
+  label: cricket bowling
+  sub_act_en_li:
+  - prepare to cricket bowling
+  - perform cricket bowling
+  - complete cricket bowling
+drumming:
+  label: drumming
+  sub_act_en_li:
+  - prepare to drumming
+  - perform drumming
+  - complete drumming
+fencing:
+  label: fencing
+  sub_act_en_li:
+  - prepare to fencing
+  - perform fencing
+  - complete fencing
+field hockey penalty:
+  label: field hockey penalty
+  sub_act_en_li:
+  - prepare to field hockey penalty
+  - perform field hockey penalty
+  - complete field hockey penalty
+frisbee catch:
+  label: frisbee catch
+  sub_act_en_li:
+  - prepare to frisbee catch
+  - perform frisbee catch
+  - complete frisbee catch
+front crawl:
+  label: front crawl
+  sub_act_en_li:
+  - prepare to front crawl
+  - perform front crawl
+  - complete front crawl
+haircut:
+  label: haircut
+  sub_act_en_li:
+  - prepare to haircut
+  - perform haircut
+  - complete haircut
+hammering:
+  label: hammering
+  sub_act_en_li:
+  - prepare to hammering
+  - perform hammering
+  - complete hammering
+head massage:
+  label: head massage
+  sub_act_en_li:
+  - prepare to head massage
+  - perform head massage
+  - complete head massage
+hula hoop:
+  label: hula hoop
+  sub_act_en_li:
+  - prepare to hula hoop
+  - perform hula hoop
+  - complete hula hoop
+javelin throw:
+  label: javelin throw
+  sub_act_en_li:
+  - prepare to javelin throw
+  - perform javelin throw
+  - complete javelin throw
+juggling balls:
+  label: juggling balls
+  sub_act_en_li:
+  - prepare to juggling balls
+  - perform juggling balls
+  - complete juggling balls
+jumping jack:
+  label: jumping jack
+  sub_act_en_li:
+  - prepare to jumping jack
+  - perform jumping jack
+  - complete jumping jack
+kayaking:
+  label: kayaking
+  sub_act_en_li:
+  - prepare to kayaking
+  - perform kayaking
+  - complete kayaking
+knitting:
+  label: knitting
+  sub_act_en_li:
+  - prepare to knitting
+  - perform knitting
+  - complete knitting
+long jump:
+  label: long jump
+  sub_act_en_li:
+  - prepare to long jump
+  - perform long jump
+  - complete long jump
+lunges:
+  label: lunges
+  sub_act_en_li:
+  - prepare to lunges
+  - perform lunges
+  - complete lunges
+military parade:
+  label: military parade
+  sub_act_en_li:
+  - prepare to military parade
+  - perform military parade
+  - complete military parade
+mixing:
+  label: mixing
+  sub_act_en_li:
+  - prepare to mixing
+  - perform mixing
+  - complete mixing
+mopping floor:
+  label: mopping floor
+  sub_act_en_li:
+  - prepare to mopping floor
+  - perform mopping floor
+  - complete mopping floor
+nunchucks:
+  label: nunchucks
+  sub_act_en_li:
+  - prepare to nunchucks
+  - perform nunchucks
+  - complete nunchucks
+parallel bars:
+  label: parallel bars
+  sub_act_en_li:
+  - prepare to parallel bars
+  - perform parallel bars
+  - complete parallel bars
+pizza tossing:
+  label: pizza tossing
+  sub_act_en_li:
+  - prepare to pizza tossing
+  - perform pizza tossing
+  - complete pizza tossing
+playing cello:
+  label: playing cello
+  sub_act_en_li:
+  - prepare to playing cello
+  - perform playing cello
+  - complete playing cello
+playing dhol:
+  label: playing dhol
+  sub_act_en_li:
+  - prepare to playing dhol
+  - perform playing dhol
+  - complete playing dhol
+playing flute:
+  label: playing flute
+  sub_act_en_li:
+  - prepare to playing flute
+  - perform playing flute
+  - complete playing flute
+playing piano:
+  label: playing piano
+  sub_act_en_li:
+  - prepare to playing piano
+  - perform playing piano
+  - complete playing piano
+playing sitar:
+  label: playing sitar
+  sub_act_en_li:
+  - prepare to playing sitar
+  - perform playing sitar
+  - complete playing sitar
+playing tabla:
+  label: playing tabla
+  sub_act_en_li:
+  - prepare to playing tabla
+  - perform playing tabla
+  - complete playing tabla
+playing violin:
+  label: playing violin
+  sub_act_en_li:
+  - prepare to playing violin
+  - perform playing violin
+  - complete playing violin
+pole vault:
+  label: pole vault
+  sub_act_en_li:
+  - prepare to pole vault
+  - perform pole vault
+  - complete pole vault
+pull ups:
+  label: pull ups
+  sub_act_en_li:
+  - prepare to pull ups
+  - perform pull ups
+  - complete pull ups
+push ups:
+  label: push ups
+  sub_act_en_li:
+  - prepare to push ups
+  - perform push ups
+  - complete push ups
+rafting:
+  label: rafting
+  sub_act_en_li:
+  - prepare to rafting
+  - perform rafting
+  - complete rafting
+rope climbing:
+  label: rope climbing
+  sub_act_en_li:
+  - prepare to rope climbing
+  - perform rope climbing
+  - complete rope climbing
+rowing:
+  label: rowing
+  sub_act_en_li:
+  - prepare to rowing
+  - perform rowing
+  - complete rowing
+shaving beard:
+  label: shaving beard
+  sub_act_en_li:
+  - prepare to shaving beard
+  - perform shaving beard
+  - complete shaving beard
+skijet:
+  label: skijet
+  sub_act_en_li:
+  - prepare to skijet
+  - perform skijet
+  - complete skijet
+soccer juggling:
+  label: soccer juggling
+  sub_act_en_li:
+  - prepare to soccer juggling
+  - perform soccer juggling
+  - complete soccer juggling
+soccer penalty:
+  label: soccer penalty
+  sub_act_en_li:
+  - prepare to soccer penalty
+  - perform soccer penalty
+  - complete soccer penalty
+sumo wrestling:
+  label: sumo wrestling
+  sub_act_en_li:
+  - prepare to sumo wrestling
+  - perform sumo wrestling
+  - complete sumo wrestling
+swing:
+  label: swing
+  sub_act_en_li:
+  - prepare to swing
+  - perform swing
+  - complete swing
+table tennis shot:
+  label: table tennis shot
+  sub_act_en_li:
+  - prepare to table tennis shot
+  - perform table tennis shot
+  - complete table tennis shot
+tai chi:
+  label: tai chi
+  sub_act_en_li:
+  - prepare to tai chi
+  - perform tai chi
+  - complete tai chi
+throw discus:
+  label: throw discus
+  sub_act_en_li:
+  - prepare to throw discus
+  - perform throw discus
+  - complete throw discus
+trampoline jumping:
+  label: trampoline jumping
+  sub_act_en_li:
+  - prepare to trampoline jumping
+  - perform trampoline jumping
+  - complete trampoline jumping
+typing:
+  label: typing
+  sub_act_en_li:
+  - prepare to typing
+  - perform typing
+  - complete typing
+uneven bars:
+  label: uneven bars
+  sub_act_en_li:
+  - prepare to uneven bars
+  - perform uneven bars
+  - complete uneven bars
+walking with dog:
+  label: walking with dog
+  sub_act_en_li:
+  - prepare to walking with dog
+  - perform walking with dog
+  - complete walking with dog
+wall pushups:
+  label: wall pushups
+  sub_act_en_li:
+  - prepare to wall pushups
+  - perform wall pushups
+  - complete wall pushups
+writing on board:
+  label: writing on board
+  sub_act_en_li:
+  - prepare to writing on board
+  - perform writing on board
+  - complete writing on board
+yo yo:
+  label: yo yo
+  sub_act_en_li:
+  - prepare to yo yo
+  - perform yo yo
+  - complete yo yo
+apply lipstick:
+  label: apply lipstick
+  sub_act_en_li:
+  - prepare to apply lipstick
+  - perform apply lipstick
+  - complete apply lipstick
+cricket shot:
+  label: cricket shot
+  sub_act_en_li:
+  - prepare to cricket shot
+  - perform cricket shot
+  - complete cricket shot
+hammer throw:
+  label: hammer throw
+  sub_act_en_li:
+  - prepare to hammer throw
+  - perform hammer throw
+  - complete hammer throw
+handstand pushups:
+  label: handstand pushups
+  sub_act_en_li:
+  - prepare to handstand pushups
+  - perform handstand pushups
+  - complete handstand pushups
+high jump:
+  label: high jump
+  sub_act_en_li:
+  - prepare to high jump
+  - perform high jump
+  - complete high jump
+horse riding:
+  label: horse riding
+  sub_act_en_li:
+  - prepare to horse riding
+  - perform horse riding
+  - complete horse riding
+playing daf:
+  label: playing daf
+  sub_act_en_li:
+  - prepare to playing daf
+  - perform playing daf
+  - complete playing daf
+playing guitar:
+  label: playing guitar
+  sub_act_en_li:
+  - prepare to playing guitar
+  - perform playing guitar
+  - complete playing guitar
+shotput:
+  label: shotput
+  sub_act_en_li:
+  - prepare to shotput
+  - perform shotput
+  - complete shotput
+skate boarding:
+  label: skate boarding
+  sub_act_en_li:
+  - prepare to skate boarding
+  - perform skate boarding
+  - complete skate boarding
+blowing candles:
+  label: blowing candles
+  sub_act_en_li:
+  - prepare to blowing candles
+  - perform blowing candles
+  - complete blowing candles
+clean and jerk:
+  label: clean and jerk
+  sub_act_en_li:
+  - prepare to clean and jerk
+  - perform clean and jerk
+  - complete clean and jerk
+cliff diving:
+  label: cliff diving
+  sub_act_en_li:
+  - prepare to cliff diving
+  - perform cliff diving
+  - complete cliff diving
+cutting in kitchen:
+  label: cutting in kitchen
+  sub_act_en_li:
+  - prepare to cutting in kitchen
+  - perform cutting in kitchen
+  - complete cutting in kitchen
+diving:
+  label: diving
+  sub_act_en_li:
+  - prepare to diving
+  - perform diving
+  - complete diving
+floor gymnastics:
+  label: floor gymnastics
+  sub_act_en_li:
+  - prepare to floor gymnastics
+  - perform floor gymnastics
+  - complete floor gymnastics
+golf swing:
+  label: golf swing
+  sub_act_en_li:
+  - prepare to golf swing
+  - perform golf swing
+  - complete golf swing
+handstand walking:
+  label: handstand walking
+  sub_act_en_li:
+  - prepare to handstand walking
+  - perform handstand walking
+  - complete handstand walking
+horse race:
+  label: horse race
+  sub_act_en_li:
+  - prepare to horse race
+  - perform horse race
+  - complete horse race
+ice dancing:
+  label: ice dancing
+  sub_act_en_li:
+  - prepare to ice dancing
+  - perform ice dancing
+  - complete ice dancing
+jump rope:
+  label: jump rope
+  sub_act_en_li:
+  - prepare to jump rope
+  - perform jump rope
+  - complete jump rope
+pommel horse:
+  label: pommel horse
+  sub_act_en_li:
+  - prepare to pommel horse
+  - perform pommel horse
+  - complete pommel horse
+punch:
+  label: punch
+  sub_act_en_li:
+  - prepare to punch
+  - perform punch
+  - complete punch
+rock climbing indoor:
+  label: rock climbing indoor
+  sub_act_en_li:
+  - prepare to rock climbing indoor
+  - perform rock climbing indoor
+  - complete rock climbing indoor
+salsa spin:
+  label: salsa spin
+  sub_act_en_li:
+  - prepare to salsa spin
+  - perform salsa spin
+  - complete salsa spin
+skiing:
+  label: skiing
+  sub_act_en_li:
+  - prepare to skiing
+  - perform skiing
+  - complete skiing
+sky diving:
+  label: sky diving
+  sub_act_en_li:
+  - prepare to sky diving
+  - perform sky diving
+  - complete sky diving
+still rings:
+  label: still rings
+  sub_act_en_li:
+  - prepare to still rings
+  - perform still rings
+  - complete still rings
+surfing:
+  label: surfing
+  sub_act_en_li:
+  - prepare to surfing
+  - perform surfing
+  - complete surfing
+tennis swing:
+  label: tennis swing
+  sub_act_en_li:
+  - prepare to tennis swing
+  - perform tennis swing
+  - complete tennis swing
+volleyball spiking:
+  label: volleyball spiking
+  sub_act_en_li:
+  - prepare to volleyball spiking
+  - perform volleyball spiking
+  - complete volleyball spiking

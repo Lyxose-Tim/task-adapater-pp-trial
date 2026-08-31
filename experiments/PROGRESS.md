@@ -1,0 +1,83 @@
+# PROGRESS — 跨会话进度
+最后更新：2026-08-31（仓库结构对齐上游重构 + B0 补种子到 n=5 决策；M2 待 n=5 锁定）
+
+## 本会话进展（2026-08-31，实施）
+- **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
+- **结构保真验证**：112 项 CPU 单测全绿；根目录集成冒烟 Epoch0 = Loss 1.521/Acc 36.00%±7.64%，与重构前云端 mini smoke 逐项吻合 → 扁平化数值保真。（8GB 卡 fp32 溢出，冒烟极慢，按用户 >1h 即停原则在 Epoch0 保真确认后停止。）
+- **B0 决策修订（用户）**：Cursor 收 3 种子后曾定 M2=57.77±1.66，但因 seed917 离群方差偏大（±1.66），用户选择**补 seed 919/920 到 n=5** 再锁 B0 → 交接包④已发（待 Cursor）。
+
+## 当前里程碑
+**M2 收尾中（待 n=5）**：B0 家族 **P1/P2 × torch 2.2.2、10 epoch**。**预备值（n=3）：B0 = 57.77 ± 1.66**（终测 56.92/59.68/56.70；sample std 1.66 偏大）→ 补 919/920 到 5 种子重算 mean±std 后锁定。缺口结论已定：long30(30ep)终测 59.12、val 56–60 振荡非爬升、落在 10ep 范围内 + 官方未修亦仅 59.34 → **相对 63.6 的 ~5.8pt 为不可约复现差**，不改延长协议。详见 `returns/2026-08-30_B0-multiseed/验收_M2.txt`。下游对照用最终 n=5 B0（配对单种子取 seed 916 实例）。
+- M0：本地环境跑通（CLIP 安装、坑 A–D 全修、官方管线端到端出数）；数据体检沿用 codex 的 ssv2_audit（64 类×100 段 CMN 口径确认）
+- M1：P1（dac5bbb）、P2（a02bd01）独立 commit＋n_query=2 官方代码合成单测；O-MSA 等变性 = 真实模块随机初始化单测＋真权重门控（修复后复跑）双重通过，O-1 成立
+- M2 前置：先本地 SSv2 抽样验证训练（判据：接近论文 63.6 在可解释误差内），通过后发云端交接包做正式 B0
+
+## 里程碑总览
+| 里程碑 | 内容 | 状态 | 备注 |
+|---|---|---|---|
+| M0 | 环境＋数据体检（云端） | ☐ | 交接包①覆盖，附带打包 mini 子集 |
+| M1 | P1/P2 修复＋O-MSA 等变性单测 | ☐ | 修复与单测本地完成；mini 就位后跑首次 smoke |
+| M2 | 基线 B0 定标（10000 ep） | ◐ | 预备 B0=57.77±1.66（3-seed）；补 919/920 到 n=5 后锁定；缺口不可约已定 |
+| M3 | 诊断主表（600–2500 ep 开发规模） | ☐ | |
+| M4 | 诊断终表（10000 ep） | ☐ | |
+| M5 | 正则首组"训练+测试+复诊断"闭环 | ☐ | |
+| M6 | 消融表＋曲线（验收三件套） | ☐ | |
+| M7+ | 创新点 1 起，见《后续创新点方案设计_v1》总调度 | ☐ | |
+
+## 待用户拍板 / 阻塞项
+- **B0 正式定标的执行地**：按修订后协议，正式训练评测仍走云端交接包；但本地有 GPU（~14GB 显存）与全量 SSv2-Small——若愿改为本地正式训练，需再修订 CLAUDE.md §1 并评估 10 epoch × 1000 episode 的本地墙钟
+- 云端实例选型与预算——仅在 B0 走云端时需要
+- P3（CrossAttention 残差 vs 式13）——已按手册"保持开源行为、仅留选项"处理，视为已决
+
+## 审查建议落实状态（2026-07-18 报告）
+| 编号 | 状态 | 落实 commit / 备注 |
+|---|---|---|
+| R-01 版本基线 | ✅ | f986c34（官方快照）→ 51ecb11（codex 初稿） |
+| R-02 O-MSA 逐类前向 | ✅ | 8839caa；回归测试修复前失败/修复后过；真权重门控复跑 passed |
+| R-03 路线A | ✅ | 1829e94；官方代码入 Task-Adapter-pp/，逐字节一致；对齐验证不再需要（主线即官方代码） |
+| R-04 本地小数据验证训练 | ✅ | CLAUDE.md §1 修订；余项已落实（d430cfc：output.ledger→run_metrics 全链改名） |
+| R-05 数据处置 | ✅ | SSv2 认可留存（CLAUDE.md 修订）；K400 25.7GB 已删除 |
+| R-06 ZSL/CL 迁出 | ✅ | 3366fe1；隔离仓库 D:\task-adapter-zslcl @ c62c3aa（42 文件） |
+| R-07 目录对齐 §6 | ✅ | f2fab2b；tests→scripts/tests、孤儿 shim 删除、重复文档删除、临时目录清理 |
+| R-08 webm 管线 | ✅ | eb18a28；64 段索引全等（两公式解析等价）＋像素差仅 JPEG 量级（最差均值 2.95/255）；train_aug 随机策略两侧不同已登记（增广随机性，不影响评测口径） |
+| R-09 等变性测试注释 | ✅ | d430cfc；mock 测试增加口径说明 |
+| R-10 依赖补足 | ✅ | f01f6ac |
+| R-11 README 定位 | ✅ | 随 f2fab2b 重写 |
+| R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
+
+## 云端待执行（交接包队列）
+- **交接包④ B0-seed2more（待 Cursor）**：`handoff/2026-08-31_B0-seed2more.md`。seed 919/920（fixed×2.2.2，10ep）→ B0 到 n=5。配置 `config_b0_seed919/920.yaml`（根目录，新结构）。⚠️ 云端旧 clone 需 `git fetch && git reset --hard origin/main`（结构已重构+历史已 wipe）。
+- 交接包③ B0-multiseed：已收包 `returns/2026-08-30_B0-multiseed/`（s917/s918/long30）。
+- 交接包② 历史单跑：`returns/2026-07-20_B0/`（57.24）、torch222（56.92）、官方未修（59.34）仅作对照。
+- **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30448**。
+
+## 已回收待登账
+-（空；交接包③已写入 ledger）
+
+## smoke 记录
+- 2026-08-29 **云端 smoke-官方管线-mini：通过**。RTX 3090，conda torch 2.1.0+cu121，CLIP JIT ViT-B-16.pt（OpenAI 官方 335MB）。Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%；Val 68% 保存 68.0.tar；终测 10 ep = 70.00%±11.43%。数值不作参考、不进 ledger。随后已启动全量 B0。
+- 2026-07-19 **本地验证训练·试水档（16 类×25 段训练 / 24 测试类×25 段终测，config_verify.yaml，commit e10ad07）：端到端通过**。训练 Loss 1.30→0.85→0.61；Val 42.0%±5.6；**终测 300 ep = 40.0%±2.4**（对照论文 63.6：训练数据仅全量 6.25%、训练 450 ep vs 正式 10000 ep，差距方向与量级可解释；本数字是代码有效性证据，不构成"误差范围内一致"的定标验证）。单 episode ~30s（fp32，8GB 贴边）。数值不进 ledger。
+- 2026-07-19 **smoke-官方管线-mini：通过（§8 六项全绿）**。官方代码（P1/P2＋环境坑修复后）在 mini 子集（8 类×8 段，seed 916）端到端：Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%（有限、下降、无 NaN）；Val 68% 触发 checkpoint；终测 10 ep 出数；**续跑通过**（load_weights+start_epoch 从 68.0.tar 恢复，Loss 0.93 续降）。RTX 4060 Laptop 8GB，fp32 显存峰值 ~7.9GB（贴边）。数值不作参考。
+- 2026-07-19 **R-08 对齐验证：通过**（`outputs/innovation3/ssv2/frame_alignment_r08.json`，64 段索引全等、像素差 JPEG 量级）
+- 2026-07-18 **O-MSA 等变性门控（R-02 修复后复跑）**：通过（`outputs/innovation3/ssv2/order_equivariance_post_r02.json`，真实 CLIP 权重，逐类编码口径，max_abs=0.0）→ **O-1 成立，3b 零成本负样本快速路径解锁**
+-（codex 遗留）smoke-innovation3-ssv2 / hmdb51、resume 探针、吞吐测量：有产物，历史参考；`outputs/innovation3/ssv2/b0/` 的 2 epoch 产物归类为本地验证性质，数字不采信、不进 ledger
+
+## 审查记录
+- 2026-07-18：codex 初步修改全面审查（审查模式，零修改）。报告：`experiments/reviews/2026-07-18_codex初步修改全面审查.md`。P0×5（R-01 无版本控制 / R-02 文本合批破坏 O-MSA 架构 / R-03 上游实现被整体替换 / R-04 本地正式训练越界＋台账多头 / R-05 74GB 数据违禁入本地）、P1×5（R-06–R-10）、P2×2（R-11、R-12）。CPU 单测 119 项全通过。符合项确认：P1/P2/P3 处理、O-1 双重验证、OT/融合/诊断实现与方案吻合、环境四坑全部处理。
+
+## 下一步（下次会话从这里开始）
+1. **用户/Cursor**：执行交接包④（seed 919/920）；产物入 `returns/2026-08-31_B0-seed2more/{s919,s920}/`。确认 GitHub 仓私有。
+2. **收包会话（Claude）**：算 5 种子 mean±std → 锁 B0（写 ledger 定义行，替换 n=3 预备行）→ M2 验收。
+3. **锁定后开工 M3**：手册 §2.3 在根 `run.py`/`models.py` 加 `diagnose()`（复制 test()、forward 加 permutation 参数），复用 `fsar/order.py`、`fsar/diagnostics.py`；CPU 单测；M3 交接包（3a 条件矩阵 C0–C4，加载 B0 ckpt），交 Cursor。
+4. B0 锁定后触发《创新点1_实验执行清单》产出。
+
+## 决策日志
+- 2026-07-17：文档组织采用路由表方案，不物理拆分；《创新点1_实验执行清单》在 B0 定标后产出；Claude Code 运行于本地＝写码＋CPU 单测，一切 GPU 任务走交接包协议。
+- 2026-07-18：本地职责扩展——增加 mini 子集验证性训练（smoke 结果不进台账、不进论文，仅 PROGRESS 登记）；确立「实施 / 审查」双模式协议：审查零修改零 commit，建议按 R 编号闭环，落实 commit 引用编号。
+- 2026-07-18（本会话）：按 CLAUDE.md §6 完成项目文件配置（CLAUDE.md 入根目录，experiments/{handoff,returns,reviews} 建立，PROGRESS.md 与 ledger.csv 入 experiments/，data/mini/ 建立）；完成 codex 初步修改全面审查（见审查记录）。
+- 2026-07-18（用户拍板）：版本基线方案——官方 Task-Adapter-pp 源码（用户置于 D:\task-adapter-pp，@ b55a59f）作为初始 commit，codex 初稿作为第二个 commit。同批落实 R-10。
+- 2026-07-18（用户拍板，第二批）：R-03 取**路线A**（官方代码为主线、fsar 为工具层）；R-04 本地允许小数据训练**仅用于代码有效性验证**（防带错上云浪费资源）；R-05 认可 SSv2 本地留存、K400 残留完整删除；R-06 ZSL/CL（试验方案.md 及代码）迁入隔离仓库 `D:\task-adapter-zslcl`；R-07 目录结构对齐 CLAUDE.md；R-08 采纳审查建议（保留 webm 直读＋B0 前做协议对齐验证）。CLAUDE.md §1/§6 已按决议做带日期标注的修订。
+- 2026-07-19（用户拍板，B0 路径）：保留全量 SSv2；**先本地**用 SSv2 随机抽样训练验证修复后代码能在误差范围内接近论文结果，**再走云端交接包做正式训练**；墙钟不需重新评估。注意约束：本地 GPU 为 RTX 4060 Laptop 8GB（fp32 官方配置贴边可跑，mini smoke 实测 ~7.8GB），本地验证训练的规模与耗时受此限制。
+- 2026-07-20（用户拍板）：试水结果（40.0%±2.4，差距可由数据/训练量解释）后三方案中选**方案 C**——本地验证目的（防带错上云）认定达成，直接发 B0 正式云端交接包，不再本地追论文数字。交接包②产出（代码锁定 cf63db3）。
+- 2026-08-30（用户拍板+Claude 分析）：三跑回传后——(1) **B0 家族 = P1/P2 修复 × torch 2.2.2**，排除官方未修 59.34（带 P2 bug 不可作分支级参照）；(2) **M2 先查缺口再验收**（不急锁 B0/进 M3）；(3) GitHub 布局 `main`+`official-baseline` 分支。用户就 B0 反问「是否多种子取平均」→ 采纳：B0=3 种子 mean±std。缺口审计定位训练时长为唯一未钉死轴 → long30 探针验证欠训假设。分工：Claude 做 GitHub/审计/代码/交接包，Cursor 执行云端训练。
+- 2026-08-31（用户拍板）：(1) B0 补 **seed 919/920 到 n=5**（3 种子 ±1.66 因 917 离群偏大）再锁定，M2 顺延；(2) **仓库结构对齐上游**——`official-baseline` 分支=纯上游源码（唯一内容）、`main`=改进代码（同上游结构，改进在根目录、取消 `Task-Adapter-pp/` 文件夹），**之前 push 全部清除**（main 历史 wipe 全新开始，旧全史存本地 `archive/pre-restructure` tag）；(3) 后续云端训练默认交 Cursor，Claude 只写交接包。编码器统一为官方架构+坑B+新增 checkpoint_path（保 B0 保真、兼容 fsar）。

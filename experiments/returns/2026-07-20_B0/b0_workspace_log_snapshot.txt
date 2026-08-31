@@ -1,0 +1,8 @@
+[Message]b0-ssv2small-5w1s-formal
+{'dataset': 'somethingcmn', 'method': 'taskadapter', 'stop_epoch': 10, 'n_query': 1, 'n_shot': 1, 'lr': 0.001}
+2026-08-29_18-30-47
+Epoch 0 | Loss 1.181163 Acc = 52.02% +- 1.31% | 2026-08-29_18-43-13
+Epoch 1 | Loss 0.881703 Acc = 65.80% +- 1.29% | 2026-08-29_18-55-40
+Epoch 2 | Loss 0.717282 Acc = 72.96% +- 1.20% | 2026-08-29_19-08-07
+Epoch 3 | Loss 0.606455 Acc = 77.24% +- 1.20% | 2026-08-29_19-20-38
+Epoch 4 | Loss 0.542932 Acc = 79.76% +- 1.08% | 2026-08-29_19-33-10

@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Test / tools
+.pytest_cache/
+.mypy_cache/
+.pytest-configs/
+.pytest_tmp*/
+.test-tmp/
+.tmp/
+tmp/
+
+# Experiment outputs
+outputs/
+
+# IDE / agent-local
+.idea/
+.vscode/
+.qoder/
+.claude/
+.agents/
+
+# Data (user-provided; full datasets must never enter git)
+UCF-101/
+dataset/
+data/mini/
+data/verify/
+data/verify_sampling.*
+
+# Papers and other large binaries
+*.pdf
+experiments/returns/**/*.pt
+experiments/returns/**/*.tar
+
+# Bundled third-party binaries (kept on disk, not in git)
+tools/aria2/
+
+# Official pipeline run artifacts (now at repo root after upstream-aligned restructure)
+workspace*/
+*_console.log
+*_smoke_out.log
+*_smoke_err.log
+/*.tar

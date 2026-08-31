@@ -1,0 +1,24 @@
+defaults: innovation124.yaml
+
+experiment:
+  name: innovation124_ucf101
+  message: ucf101_5way_1shot_available_data
+
+model:
+  checkpoint: ../dataset/checkpoints/ViT-B-16.pt
+
+data:
+  name: ucf101
+  root: ../dataset/UCF101/UCF-101
+  corpus: ../corpus/classes_ucf101_fsar.yml
+  splits:
+    train: ../dataset/UCF101/annotations/train.txt
+    val: ../dataset/UCF101/annotations/val.txt
+    test: ../dataset/UCF101/annotations/test.txt
+
+corpus_v2:
+  enabled: false
+
+output:
+  root: ../outputs/innovation124/ucf101
+  run_metrics: ../outputs/innovation124/ucf101/run_metrics.csv

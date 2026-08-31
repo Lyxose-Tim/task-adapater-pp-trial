@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "task-adapter-pp"
+version = "0.2.0"
+description = "Task-Adapter++ episodic FSAR innovations and legacy experiments"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.0",
+    "torchvision",
+    "open-clip-torch",
+    "decord",
+    "einops",
+    "numpy",
+    "Pillow",
+    "scipy",
+    "pyyaml",
+    "tqdm",
+    "scikit-learn",
+    "pandas",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+openai = ["openai"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fsar*"]
+
+[tool.pytest.ini_options]
+testpaths = ["scripts/tests"]
+pythonpath = ["."]

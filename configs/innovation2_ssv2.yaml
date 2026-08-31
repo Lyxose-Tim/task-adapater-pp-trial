@@ -1,0 +1,19 @@
+# Innovation 2 on top of the selected Innovation 1 OT configuration.
+# This file intentionally fails runtime path validation until the v2 corpus has
+# been generated and quality-controlled.
+defaults: innovation1_unbalanced.yaml
+
+experiment:
+  name: innovation2_ssv2
+  phase: innovation2_corpus_v2
+  message: ss2_small_v2_corpus_support_selection
+
+corpus_v2:
+  enabled: true
+  path: ../corpus/classes_somethingcmn_v2.json
+  online_support_selection: true
+  training_selection: true
+
+output:
+  root: ../outputs/innovation2/ssv2
+  run_metrics: ../outputs/innovation2/ssv2/run_metrics.csv

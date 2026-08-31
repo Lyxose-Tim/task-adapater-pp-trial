@@ -1,0 +1,14 @@
+# Innovation 1 step C: ordered, one-sided unbalanced OT.
+defaults: innovation1_ordered.yaml
+
+experiment:
+  name: innovation1_unbalanced_ot
+  phase: innovation1_step_c
+
+model:
+  ot:
+    rho: 0.5
+
+output:
+  root: ../outputs/innovation1/unbalanced
+  run_metrics: ../outputs/innovation1/unbalanced/run_metrics.csv

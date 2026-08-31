@@ -1,0 +1,14 @@
+# Paired order diagnosis on the frozen B0 checkpoint (paper-scale result).
+defaults: innovation3_ssv2_3a_dev.yaml
+
+experiment:
+  name: innovation3_ssv2_3a_final
+  phase: diagnosis_3a_final
+  message: ss2_small_5way_1shot_3a_10000
+
+episodes:
+  test: 10000
+
+output:
+  root: ../outputs/innovation3/ssv2/3a/final
+  run_metrics: ../outputs/innovation3/ssv2/3a/final/run_metrics.csv

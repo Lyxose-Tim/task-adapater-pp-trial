@@ -1,0 +1,136 @@
+# Innovation 3: M0 baseline -> 3a paired order diagnosis -> 3b order loss.
+# Paths are relative to this file.  The loader deliberately checks them only
+# when a training/evaluation command requests runtime validation.
+
+experiment:
+  name: innovation3
+  phase: m0                 # m0 | diagnosis_3a | regularizer_3b
+  message: ss2_small_5way_1shot
+
+runtime:
+  seed: 916
+  device: auto
+  num_gpus: 1
+  gpu_ids: [0]
+  # Conservative Windows spawn default. Increase to at most 8 only after the
+  # smoke run has completed without worker/decode failures.
+  num_workers: 4
+  deterministic: true
+  # CUDA-only: float16 autocast + scaled gradients keep ViT-B/16 episodes
+  # within an 8 GB card. CPU execution remains full precision.
+  amp: true
+  # Applied independently of deterministic algorithm selection.
+  allow_tf32: true
+
+model:
+  method: taskadapter
+  backbone: ViT-B-16       # open_clip spelling
+  openai_clip_name: ViT-B/16
+  pretrained: openai
+  checkpoint: ../dataset/checkpoints/ViT-B-16.pt
+  checkpoint_env: CLIP_CHECKPOINT
+  num_frames: 8
+  adapter_depth: 6
+  text_depth: 2
+  semantic_backend: fixed_window
+  ot_frame_source: aligned
+  ot:
+    epsilon: 0.05
+    lambda_pos: 0.0
+    rho: .inf
+    iterations: 30
+    mass_epsilon: 1.0e-6
+  fusion:
+    mode: legacy_product
+    alpha: 0.5
+    visual_temperature: 1.0
+    semantic_temperature: 1.0
+
+data:
+  name: somethingcmn
+  # DirectVideoDataset decodes the extracted VP9 WebM files in place. The
+  # original split archives remain untouched under dataset/SSv2.
+  root: ../dataset/SSv2/extracted/videos
+  corpus: ../corpus/classes_somethingcmn.yml
+  frame_template: img_{:05d}.jpg
+  splits:
+    train: ../dataset/smsm_cmn/annotations/train.txt
+    val: ../dataset/smsm_cmn/annotations/val.txt
+    test: ../dataset/smsm_cmn/annotations/test.txt
+  require_independent_splits: true
+
+episodes:
+  train_n_way: 5
+  test_n_way: 5
+  n_shot: 1
+  n_query: 1
+  train: 1000
+  val: 1000
+  test: 10000
+
+optimization:
+  learning_rate: 0.001
+  start_epoch: 0
+  stop_epoch: 10
+  warm_up_epoch: 8
+
+# M0 uses the same complete pipeline but tiny counts before the full baseline.
+m0:
+  enabled: true
+  repair_p1_branch_names: true
+  repair_p2_score_orientation: true
+  equivariance_test: true
+  data_audit: true
+  smoke_train_episodes: 1
+  smoke_val_episodes: 1
+  smoke_test_episodes: 1
+  baseline_reference_accuracy: 63.6
+
+# All text permutations share one visual forward and the same sampled episodes.
+diagnosis_3a:
+  enabled: false
+  conditions: [C0, C1, C2, C3, C4]
+  include_c5: false
+  permutations:
+    C0: [0, 1, 2]
+    C1: [2, 1, 0]
+    C2:
+      - [0, 2, 1]
+      - [1, 0, 2]
+      - [1, 2, 0]
+      - [2, 0, 1]
+      - [2, 1, 0]
+  permutation_seed: 916
+  paired_episodes: true
+  sync_query_frame_permutation: true
+  report_branch_metrics: true
+  report_score_margins: true
+  confidence: 0.95
+  development_episodes: 1000
+  final_episodes: 10000
+
+regularizer_3b:
+  enabled: false
+  kind: margin             # margin | infonce
+  weight: 0.1
+  margin: 0.1
+  negative_permutations: 1
+  reuse_equivariant_features: true
+  monitor_ce_ratio: true
+
+output:
+  root: ../outputs/innovation3
+  run_metrics: ../outputs/innovation3/run_metrics.csv
+  run_metrics_columns:
+    - experiment
+    - commit
+    - config_summary
+    - accuracy
+    - confidence_interval
+    - order_sensitivity
+    - wall_time_seconds
+    - peak_memory_mb
+    - notes
+  save_config_snapshot: true
+  save_episode_records: true
+  save_checkpoint: true

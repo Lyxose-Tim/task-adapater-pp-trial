@@ -1,0 +1,16 @@
+官方未修 P1/P2 对照（2026-08-30 11:33 UTC 启动）
+
+源码：D:\task-adapter-pp @ b55a59f（官方仓库，return 仍为 sem_dists, dists，无 P2 转置）
+云端目录：/root/rivermind-data/ta-pp/Task-Adapter-pp-official/
+本地快照：experiments/returns/2026-08-30_B0_official/src/
+工程补丁仅三处：CLIP 路径、num_workers 48→8、config 的 path/method/num_gpus/work_dir
+对照变量：相对修补后 B0 / torch222，实现回到官方（无 P1/P2）
+协议：同 B0（10×1000、终测 10000、seed 916、lr 0.001）
+torch：云端现为 2.2.2+cu121
+message：b0-ssv2small-5w1s-official-unpatched
+work_dir：./workspace_official/（不覆盖 workspace_b0 / workspace_b0_torch222）
+进程：run.py PID 1934
+启动后显存：14661 MiB / 100%
+控制台：/root/rivermind-data/b0_official_console.log
+显存日志：/root/rivermind-data/nvidia_b0_official.csv
+SSH：sc01-ssh.gpuhome.cc:30448 / jupyter-jwttqv4oex5hy52b

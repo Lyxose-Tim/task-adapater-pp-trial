@@ -1,0 +1,27 @@
+# smoke 配置（CLAUDE.md §8）：继承正式 config.yaml 的全部形状相关维度
+# （num_segments=8、224 分辨率、5way/1shot/1query、K=3），只缩数据量与
+# 迭代数。经 TA_CONFIG=config_mini.yaml 加载，不覆盖正式 config.yaml。
+dataset: "somethingcmn"
+dataset_base_path: "data/mini/"
+method: "taskadapter"          # 坑 C：必填
+train_n_way: 5
+test_n_way: 5
+n_query: 1
+n_shot: 1
+num_gpus: 1
+train_aug: True
+work_dir: "./workspace_mini/"
+num_segments: 8
+train_episode: 20
+test_episode: 10
+eval_episode: 5
+test_model: False
+load_weights: False
+checkpoint: ""
+start_epoch: 0
+stop_epoch: 2
+warm_up_epoch: 0               # 令 epoch 1 触发验证与 checkpoint 保存
+text_depth: 2
+lr: 0.001
+num_workers: 2                 # 坑 D：本地 smoke 压低
+message: "mini-smoke"

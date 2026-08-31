@@ -1,0 +1,19 @@
+# Innovation 1 step A: content-only balanced OT (lambda=0, rho=infinity).
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation1_balanced_ot
+  phase: innovation1_step_a
+
+model:
+  semantic_backend: ot
+  ot_frame_source: aligned
+  ot:
+    epsilon: 0.05
+    lambda_pos: 0.0
+    rho: .inf
+    iterations: 30
+
+output:
+  root: ../outputs/innovation1/balanced
+  run_metrics: ../outputs/innovation1/balanced/run_metrics.csv

@@ -1,0 +1,20 @@
+# SSv2-Small M0 smoke gate. Keep this output separate from formal B0 training.
+defaults: innovation3.yaml
+
+experiment:
+  name: innovation3_ssv2_smoke
+  phase: m0_smoke
+  message: ss2_small_5way_1shot_m0_smoke
+
+m0:
+  enabled: true
+
+diagnosis_3a:
+  enabled: false
+
+regularizer_3b:
+  enabled: false
+
+output:
+  root: ../outputs/innovation3/ssv2/smoke
+  run_metrics: ../outputs/innovation3/ssv2/smoke/run_metrics.csv
