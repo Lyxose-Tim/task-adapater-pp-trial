@@ -1,0 +1,25 @@
+[Message]b0-ssv2small-5w1s-s919
+{'dataset': 'somethingcmn', 'method': 'taskadapter', 'stop_epoch': 10, 'n_query': 1, 'n_shot': 1, 'lr': 0.001}
+2026-08-31_15-59-39
+Epoch 0 | Loss 1.190227 Acc = 51.38% +- 1.37% | 2026-08-31_16-12-33
+Epoch 1 | Loss 0.886152 Acc = 66.20% +- 1.29% | 2026-08-31_16-25-27
+Epoch 2 | Loss 0.743121 Acc = 71.80% +- 1.24% | 2026-08-31_16-38-22
+Epoch 3 | Loss 0.625217 Acc = 76.94% +- 1.17% | 2026-08-31_16-51-20
+Epoch 4 | Loss 0.539164 Acc = 80.08% +- 1.09% | 2026-08-31_17-04-18
+Epoch 5 | Loss 0.476187 Acc = 82.22% +- 1.11% | 2026-08-31_17-17-14
+Epoch 6 | Loss 0.409214 Acc = 85.64% +- 0.99% | 2026-08-31_17-30-10
+Epoch 7 | Loss 0.358837 Acc = 87.24% +- 0.92% | 2026-08-31_17-43-08
+Epoch 8 | Loss 0.332583 Acc = 88.10% +- 0.92% | 2026-08-31_17-56-04
+Epoch 9 | Loss 0.297903 Acc = 89.46% +- 0.85% | 1000 Val Acc = 56.46% +- 1.23%
+best model! save...
+total tasks:1000	acc_mean:56.9	acc_std:1.288824822852198
+total tasks:2000	acc_mean:57.34	acc_std:0.9106350682463309
+total tasks:3000	acc_mean:56.53333333333333	acc_std:0.7403009534166692
+total tasks:4000	acc_mean:56.515	acc_std:0.6421466545190436
+total tasks:5000	acc_mean:56.488	acc_std:0.5736514231499125
+total tasks:6000	acc_mean:56.486666666666665	acc_std:0.5240876677695709
+total tasks:7000	acc_mean:56.56857142857143	acc_std:0.48506935949408303
+total tasks:8000	acc_mean:56.615	acc_std:0.452894557656636
+total tasks:9000	acc_mean:56.693333333333335	acc_std:0.427155086962598
+total tasks:10000	acc_mean:56.554	acc_std:0.4058312805457953
+10000 Test Acc = 56.55% +- 0.41%
