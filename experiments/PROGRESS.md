@@ -1,5 +1,5 @@
 # PROGRESS — 跨会话进度
-最后更新：2026-08-31 22:43 UTC（交接包④收包：B0=57.01±1.64 n=5；M2 已锁定）
+最后更新：2026-08-31（M2 锁定 B0=57.01±1.64；M3 3a 诊断代码就绪，交接包⑤待 Cursor）
 
 ## 本会话进展（2026-08-31，实施）
 - **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
@@ -19,7 +19,7 @@
 | M0 | 环境＋数据体检（云端） | ☐ | 交接包①覆盖，附带打包 mini 子集 |
 | M1 | P1/P2 修复＋O-MSA 等变性单测 | ☐ | 修复与单测本地完成；mini 就位后跑首次 smoke |
 | M2 | 基线 B0 定标（10000 ep） | ✅ | B0=57.01±1.64（5-seed，10ep，P1/P2×2.2.2）；vs 63.6 差 6.59pt 记复现差 |
-| M3 | 诊断主表（600–2500 ep 开发规模） | ☐ | |
+| M3 | 诊断主表（600–2500 ep 开发规模） | ◐ | 代码就绪（diagnose.py，fe63d69，114 单测过）；交接包⑤待 Cursor 云跑 1000 ep |
 | M4 | 诊断终表（10000 ep） | ☐ | |
 | M5 | 正则首组"训练+测试+复诊断"闭环 | ☐ | |
 | M6 | 消融表＋曲线（验收三件套） | ☐ | |
@@ -47,9 +47,8 @@
 | R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
 
 ## 云端待执行（交接包队列）
--（空——B0 定标全部收包）。**下一个交接包 = M3 3a 诊断**（本会话产出）。
-- 已收包：交接包④ seed2more（n=5 锁 B0）、③ multiseed（s917/s918/long30）、② 历史单跑（57.24/56.92/59.34 对照）。
-- Cursor 已把云端结构调整到新根目录布局；seed 919/920 即在 commit `60019b4`（新结构）上完成全量训练 → **扁平化结构获云端全量训练验证**（本地 8GB 仅能验 Epoch0）。
+- **交接包⑤ M3-3a-dev（待 Cursor）**：`handoff/2026-08-31_M3-3a-diagnose.md`。加载 B0 seed916 ckpt（`56.32.tar`，需上传云端并填入 config_3a_dev.yaml），`TA_CONFIG=config_3a_dev.yaml python diagnose.py`，1000 episode。带回 diagnose_3a_*.json。代码 `fe63d69`。
+- 已收包：④ seed2more（n=5 锁 B0）、③ multiseed、② 历史单跑。扁平化结构已获云端全量训练验证（seed 919/920 在 60019b4 训练无误）。
 - **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30448**。GPU 空闲。
 
 ## 已回收待登账
@@ -67,9 +66,10 @@
 - 2026-07-18：codex 初步修改全面审查（审查模式，零修改）。报告：`experiments/reviews/2026-07-18_codex初步修改全面审查.md`。P0×5（R-01 无版本控制 / R-02 文本合批破坏 O-MSA 架构 / R-03 上游实现被整体替换 / R-04 本地正式训练越界＋台账多头 / R-05 74GB 数据违禁入本地）、P1×5（R-06–R-10）、P2×2（R-11、R-12）。CPU 单测 119 项全通过。符合项确认：P1/P2/P3 处理、O-1 双重验证、OT/融合/诊断实现与方案吻合、环境四坑全部处理。
 
 ## 下一步
-1. **M3 开工（本会话）**：手册 §2.3 在根 `run.py`/`models.py` 加 `diagnose()`（复制 test()、forward 加 permutation 参数），复用 `fsar/order.py`（排列）、`fsar/diagnostics.py`（配对 CI）；CPU 单测（排列管线＋§2.2 分支 sanity：文本扰动只动语义分支）；写 M3 交接包（3a 条件矩阵 C0–C4，加载 B0 ckpt=seed916 的 56.32.tar），交 Cursor。
-2. B0 已锁 → 触发《创新点1_实验执行清单》产出。
-3. ✅ GitHub 仓私有已确认（用户 2026-08-31）。
+1. **✅ M3 代码就绪（本会话）**：`diagnose.py` + `models.py` 可复用重构 + `config_3a_dev.yaml` + `test_diagnose.py`（fe63d69，114 单测过）。交接包⑤已发。
+2. **Cursor**：跑交接包⑤（上传 B0 seed916 ckpt → `diagnose.py` 1000 ep）→ 产物入 `returns/2026-08-31_M3-3a-dev/`。
+3. **收包会话（Claude）**：核 sanity → 报告 OS±CI 与预注册分支归属（手册 §2.5）→ ledger 加 OS 列 → 决定 M4（10000 ep 终表）与 3b 走向。
+4. B0 已锁 → 触发《创新点1_实验执行清单》产出（既定决策）。
 
 ## 决策日志
 - 2026-07-17：文档组织采用路由表方案，不物理拆分；《创新点1_实验执行清单》在 B0 定标后产出；Claude Code 运行于本地＝写码＋CPU 单测，一切 GPU 任务走交接包协议。
