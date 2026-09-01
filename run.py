@@ -7,6 +7,7 @@ import os
 from utils import *
 from dataset import SetDataManager
 from models import TaskAdapter
+from fsar.order import NON_IDENTITY_STAGE_PERMUTATIONS   # 创新点 3b 顺序正则的负排列
 
 def train(data_loader_list, model, optimization, start_epoch, stop_epoch, params):    
 
@@ -32,9 +33,13 @@ def train(data_loader_list, model, optimization, start_epoch, stop_epoch, params
         model.train()
 
         avg_loss=0
-        
+        avg_order=0   # 创新点 3b：监控 L_order 量级（手册 §3.1）
+
         acc_all = []
         iter_num = len(base_loader)
+        # 创新点 3b 顺序对比正则超参（order_lambda=0 时行为与 B0 逐位一致）
+        order_lambda = float(getattr(params, 'order_lambda', 0.0))
+        order_margin = float(getattr(params, 'order_margin', 0.1))
 
         for i, (x, label) in enumerate(base_loader):
 
@@ -43,13 +48,22 @@ def train(data_loader_list, model, optimization, start_epoch, stop_epoch, params
             x = x.reshape(nway*sq*t, c, h, w) # images
             # with autocast(device_type='cuda'):
             if True:
-                vis_dis, sem_dis = model(x,label=label) 
+                if order_lambda > 0:
+                    vis_dis, sem_dis, order_loss = model.forward_train(
+                        x, label, order_perms=NON_IDENTITY_STAGE_PERMUTATIONS,
+                        order_margin=order_margin)
+                else:
+                    vis_dis, sem_dis = model(x,label=label)
+                    order_loss = None
 
                 # compute loss
                 # Windows numpy 默认 int32，cross_entropy 需要 int64
                 y_query = torch.from_numpy(np.repeat(range( nway ), n_query )).long()
                 y_query = Variable(y_query.cuda())
                 loss = loss_fn(vis_dis*sem_dis*64, y_query)#*sem_dis*64
+                if order_loss is not None:
+                    loss = loss + order_lambda * order_loss     # L = L_CE + λ·L_order
+                    avg_order = avg_order + float(order_loss.item())
 
                 scores = vis_dis*sem_dis
                 y_query = y_query.cpu().numpy()
@@ -68,8 +82,12 @@ def train(data_loader_list, model, optimization, start_epoch, stop_epoch, params
         acc_all  = np.asarray(acc_all)
         acc_mean = np.mean(acc_all)
         acc_std  = np.std(acc_all)
-            
-        print('Epoch {:d} | Loss {:f} Acc = {:.2f}% +- {:.2f}% | '.format(epoch, avg_loss/float(i+1), acc_mean, 1.96* acc_std/np.sqrt(iter_num)),end="")  
+
+        print('Epoch {:d} | Loss {:f} Acc = {:.2f}% +- {:.2f}% | '.format(epoch, avg_loss/float(i+1), acc_mean, 1.96* acc_std/np.sqrt(iter_num)),end="")
+        if order_lambda > 0:   # 监控 L_order 量级与占比（手册 §3.1）
+            _lo = avg_order/float(i+1)
+            print('L_order {:f} (lam={:g}, lam*Lo={:f}) | '.format(_lo, order_lambda, order_lambda*_lo), end="")
+            params.logfile.write('L_order {:f} lam={:g} | '.format(_lo, order_lambda))
         # writer.add_scalar(tag='loss/train',scalar_value=avg_loss/float(i+1),global_step=epoch)
         # writer.add_scalar(tag='acc/train',scalar_value=acc_mean,global_step=epoch)
         params.logfile.write(time.strftime('%Y-%m-%d_%H-%M-%S',time.localtime(time.time()))+'\n')

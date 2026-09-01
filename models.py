@@ -84,10 +84,10 @@ class TaskAdapter(MetaTemplate):
         q_aft_tm=torch.stack(q_aft_tm,dim=0)
         return z_query, z_proto, q_aft_tm
 
-    def semantic_scores(self, q_aft_tm, label_idx, permutation=None):
-        # 语义分支：文本前向 + 阶段-窗口 cos。`permutation` 为诊断用的子动作
-        # 排列（长度=K=3 的下标序），仅重排每类的 sub_act_en_li 顺序 →
-        # 只影响语义分支、不动视觉（手册 §2.2 sanity 的实现保证）。
+    def _encode_stage_text(self, label_idx, permutation=None):
+        # 文本前向：按 label 逐类编码 K 个子动作 → enh_embedding [K, n_way, D]。
+        # permutation（长度 K 的下标序）先重排每类 sub_act_en_li。逐类调用是
+        # O-MSA 语义要求（R-02），不可整 episode 合批。
         label_name = [self.cls_name[i] for i in label_idx]
         enhtxt=[]
         tmp_prompt = []
@@ -104,16 +104,52 @@ class TaskAdapter(MetaTemplate):
         enh_embedding = []
         for i in range(self.n_way):
             enh_embedding.append(self.text(clip.tokenize(enhtxt[i]).to('cuda')))
+        return torch.stack(enh_embedding,dim=0).permute(1,0,2)   # [K, n_way, D]
 
-        enh_embedding = torch.stack(enh_embedding,dim=0).permute(1,0,2)
+    def _fixed_window_score(self, enh_embedding, q_aft_tm):
+        # 阶段-窗口 cos（式(16) 口径）：阶段 i 对齐窗口 [2i,2i+1,2i+2]，/9。
         cos_score = 0
         for i in range(3):
             cos_score += (cosine_similarity(enh_embedding[i],q_aft_tm[2*i])+cosine_similarity(enh_embedding[i],q_aft_tm[2*i+1])+cosine_similarity(enh_embedding[i],q_aft_tm[2*i+2]))
-
         cos_score = cos_score/9
-
         # P2: cos_score 朝向 [n_way, N_Q]，转置为 (查询行, 类列) 与视觉分一致
         return cos_score.transpose(-2, -1)
+
+    def semantic_scores(self, q_aft_tm, label_idx, permutation=None):
+        # 语义分支：文本前向 + 阶段-窗口 cos。`permutation` 仅重排每类子动作
+        # 顺序 → 只影响语义分支、不动视觉（手册 §2.2 sanity 的实现保证）。
+        return self._fixed_window_score(
+            self._encode_stage_text(label_idx, permutation), q_aft_tm)
+
+    def order_margin_loss(self, q_aft_tm, label_idx, order_perms, margin):
+        # 创新点 3b·顺序对比正则（手册 §3.1 margin 版 + §3.2 免费午餐）：
+        #   L_order = mean_{query i, 排列 π} max(0, γ − (s_i(正序) − s_i(π)))
+        # s_i = 查询 i 与其正确类文本的语义匹配分（cos_score 通路的对角）。
+        # O-1 等变（真权重门控 max_abs=0.0）：排列文本特征 = 正序 enh 按 K 轴
+        # index_select，**零额外文本前向**；梯度经"阶段-窗口匹配"塑造阶段特异性。
+        enh = self._encode_stage_text(label_idx, None)            # 正序编码一次 [K, n_way, D]
+        sem_id = self._fixed_window_score(enh, q_aft_tm)          # [N_Q, n_way]
+        y = torch.arange(self.n_way, device=sem_id.device).repeat_interleave(self.n_query).view(-1, 1)
+        s_pos = sem_id.gather(1, y).squeeze(1)                    # [N_Q] 正确类正序分
+        losses = []
+        for perm in order_perms:
+            idx = torch.as_tensor(list(perm), dtype=torch.long, device=enh.device)
+            sem_p = self._fixed_window_score(enh.index_select(0, idx), q_aft_tm)
+            s_perm = sem_p.gather(1, y).squeeze(1)
+            losses.append(F.relu(margin - (s_pos - s_perm)))     # [N_Q]
+        return torch.stack(losses, dim=0).mean()
+
+    def forward_train(self, x, label, order_perms=None, order_margin=0.1):
+        # 训练用前向：视觉前向一次，供 CE（vis*sem）与 order 正则共用。
+        # order_perms=None → order_loss 返回 None（等价 B0 训练）。
+        label_idx = list(label[:,0].numpy())
+        z_query, z_proto, q_aft_tm = self.episode_visual(x)
+        vis_dists = self.visual_scores(z_query, z_proto)
+        sem_dists = self.semantic_scores(q_aft_tm, label_idx, None)
+        order_loss = None
+        if order_perms is not None:
+            order_loss = self.order_margin_loss(q_aft_tm, label_idx, order_perms, order_margin)
+        return vis_dists, sem_dists, order_loss
 
     def visual_scores(self, z_query, z_proto):
         # 视觉分支：query/proto 帧均值的余弦，[N_Q, n_way]
