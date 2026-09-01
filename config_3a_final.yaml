@@ -1,0 +1,33 @@
+# 创新点 3 · 3a 顺序敏感性诊断（终表规模，手册 §2.4：10000 episode）
+# 加载 B0 权重做推理型诊断（不训练）。经 TA_CONFIG=config_3a_dev.yaml python diagnose.py
+# 家族与 B0 一致：P1/P2 修复 × torch 2.2.2。
+seed: 916
+dataset: "somethingcmn"
+dataset_base_path: "data/full/"
+method: "taskadapter"
+train_n_way: 5
+test_n_way: 5
+n_query: 1
+n_shot: 1
+num_gpus: 1
+train_aug: True
+work_dir: "./workspace_3a_final/"
+num_segments: 8
+train_episode: 1000
+test_episode: 10000
+eval_episode: 1000
+test_model: True
+load_weights: False
+# ⚠️ Cursor 填：B0 参照实例 = seed 916 的 checkpoint（56.32.tar，terminal 56.92）。
+# 从 returns/2026-08-30_B0_torch222/56.32.tar 上传到云端后填其路径。
+checkpoint: "dataset/checkpoints/b0_seed916_56.32.tar"
+start_epoch: 0
+stop_epoch: 10
+warm_up_epoch: 8
+text_depth: 2
+lr: 0.001
+num_workers: 8
+message: "3a-diag-final"
+# 诊断专用：开发规模 episode 数与帧随机打乱（C4）种子
+diagnose_episodes: 10000
+frame_perm_seed: 916

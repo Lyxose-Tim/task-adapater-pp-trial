@@ -1,5 +1,5 @@
 # PROGRESS — 跨会话进度
-最后更新：2026-08-31（M2 锁定 B0=57.01±1.64；M3 3a 诊断代码就绪，交接包⑤待 Cursor）
+最后更新：2026-09-01 05:49 UTC（交接包⑤收包：3a 1000 ep；OS=0.43±0.41；sanity 通过；M3 主表出数）
 
 ## 本会话进展（2026-08-31，实施）
 - **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
@@ -7,8 +7,8 @@
 - **B0 决策修订（用户）**：补 seed 919/920 到 n=5 再锁 B0。交接包④已收：**B0 = 57.01 ± 1.64**。
 
 ## 当前里程碑
-**M2 已定标**：B0 家族 **P1/P2 × torch 2.2.2、10 epoch**。五种子终测 56.92 / 59.68 / 56.70 / 56.55 / 55.20，**B0 = 57.01 ± 1.64**（sample std；>0.5pt，论文须报方差）。相对 n=3 预备 57.77±1.66：mean 下移 0.76pt，std 几乎未收（917 高、920 低）。缺口不可约结论不变（相对 63.6 差 6.59pt 记复现差）。详见 `returns/2026-08-31_B0-seed2more/验收_M2.txt`。
-后续创新点对照用 **57.01±1.64**；配对单种子测 Δ 用 seed 916 实例（56.92）。
+**M2 已定标**：B0 = **57.01 ± 1.64**（5-seed，10ep，P1/P2×2.2.2）。对照与配对 Δ 仍用本行 / seed 916。
+**M3 主表已出（开发规模）**：3a 诊断 1000 episode，加载 B0 seed916 `56.32.tar`。C0 融合 **57.12±1.25**；**OS = 0.43±0.41**（配对 95% CI 区间 [0.02, 0.84]，勉强不含 0）；C0−C1 = 0.32±0.57（含 0）；sanity 通过。§2.5 分支在此规模下不锁定（点估计略正、量级小），待 M4 10000 ep。详见 `returns/2026-08-31_M3-3a-dev/验收.txt`。
 - M0：本地环境跑通（CLIP 安装、坑 A–D 全修、官方管线端到端出数）；数据体检沿用 codex 的 ssv2_audit（64 类×100 段 CMN 口径确认）
 - M1：P1（dac5bbb）、P2（a02bd01）独立 commit＋n_query=2 官方代码合成单测；O-MSA 等变性 = 真实模块随机初始化单测＋真权重门控（修复后复跑）双重通过，O-1 成立
 - M2 前置：先本地 SSv2 抽样验证训练（判据：接近论文 63.6 在可解释误差内），通过后发云端交接包做正式 B0
@@ -19,8 +19,8 @@
 | M0 | 环境＋数据体检（云端） | ☐ | 交接包①覆盖，附带打包 mini 子集 |
 | M1 | P1/P2 修复＋O-MSA 等变性单测 | ☐ | 修复与单测本地完成；mini 就位后跑首次 smoke |
 | M2 | 基线 B0 定标（10000 ep） | ✅ | B0=57.01±1.64（5-seed，10ep，P1/P2×2.2.2）；vs 63.6 差 6.59pt 记复现差 |
-| M3 | 诊断主表（600–2500 ep 开发规模） | ◐ | 代码就绪（diagnose.py，fe63d69，114 单测过）；交接包⑤待 Cursor 云跑 1000 ep |
-| M4 | 诊断终表（10000 ep） | ☐ | |
+| M3 | 诊断主表（600–2500 ep 开发规模） | ✅ | 1000 ep：C0=57.12±1.25；OS=0.43±0.41；sanity 通过；§2.5 待 M4 |
+| M4 | 诊断终表（10000 ep） | ◐ | 交接包⑥待 Cursor（config_3a_final.yaml，10000 ep 收紧 OS CI 定 §2.5 分支） |
 | M5 | 正则首组"训练+测试+复诊断"闭环 | ☐ | |
 | M6 | 消融表＋曲线（验收三件套） | ☐ | |
 | M7+ | 创新点 1 起，见《后续创新点方案设计_v1》总调度 | ☐ | |
@@ -47,12 +47,12 @@
 | R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
 
 ## 云端待执行（交接包队列）
-- **交接包⑤ M3-3a-dev（待 Cursor）**：`handoff/2026-08-31_M3-3a-diagnose.md`。加载 B0 seed916 ckpt（`56.32.tar`，需上传云端并填入 config_3a_dev.yaml），`TA_CONFIG=config_3a_dev.yaml python diagnose.py`，1000 episode。带回 diagnose_3a_*.json。代码 `fe63d69`。
-- 已收包：④ seed2more（n=5 锁 B0）、③ multiseed、② 历史单跑。扁平化结构已获云端全量训练验证（seed 919/920 在 60019b4 训练无误）。
+- **交接包⑥ M4-3a-final（待 Cursor）**：`handoff/2026-09-01_M4-3a-final.md`。`TA_CONFIG=config_3a_final.yaml python diagnose.py`，10000 ep（估 ~3.5–4h），收紧 OS CI 定 §2.5 分支。同 ckpt（B0 seed916）。带回 diagnose_3a_*.json 入 `returns/2026-09-01_M4-3a-final/`。
+- 已收包：⑤ M3-3a-dev（OS=0.43±0.41 sanity过）、④ seed2more（n=5 锁 B0）、③ multiseed、② 历史单跑。
 - **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30448**。GPU 空闲。
 
 ## 已回收待登账
--（空；交接包④已写入 ledger，B0-defined=57.01±1.64）
+-（空；交接包⑤已写入 ledger）
 
 ## smoke 记录
 - 2026-08-29 **云端 smoke-官方管线-mini：通过**。RTX 3090，conda torch 2.1.0+cu121，CLIP JIT ViT-B-16.pt（OpenAI 官方 335MB）。Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%；Val 68% 保存 68.0.tar；终测 10 ep = 70.00%±11.43%。数值不作参考、不进 ledger。随后已启动全量 B0。
@@ -66,10 +66,10 @@
 - 2026-07-18：codex 初步修改全面审查（审查模式，零修改）。报告：`experiments/reviews/2026-07-18_codex初步修改全面审查.md`。P0×5（R-01 无版本控制 / R-02 文本合批破坏 O-MSA 架构 / R-03 上游实现被整体替换 / R-04 本地正式训练越界＋台账多头 / R-05 74GB 数据违禁入本地）、P1×5（R-06–R-10）、P2×2（R-11、R-12）。CPU 单测 119 项全通过。符合项确认：P1/P2/P3 处理、O-1 双重验证、OT/融合/诊断实现与方案吻合、环境四坑全部处理。
 
 ## 下一步
-1. **✅ M3 代码就绪（本会话）**：`diagnose.py` + `models.py` 可复用重构 + `config_3a_dev.yaml` + `test_diagnose.py`（fe63d69，114 单测过）。交接包⑤已发。
-2. **Cursor**：跑交接包⑤（上传 B0 seed916 ckpt → `diagnose.py` 1000 ep）→ 产物入 `returns/2026-08-31_M3-3a-dev/`。
-3. **收包会话（Claude）**：核 sanity → 报告 OS±CI 与预注册分支归属（手册 §2.5）→ ledger 加 OS 列 → 决定 M4（10000 ep 终表）与 3b 走向。
-4. B0 已锁 → 触发《创新点1_实验执行清单》产出（既定决策）。
+1. **✅ M4 交接包已发（本会话）**：`config_3a_final.yaml`（10000 ep）+ handoff⑥。Cursor 跑 → 产物入 `returns/2026-09-01_M4-3a-final/`。
+2. **收包会话（Claude）**：解析 → 核 sanity → 报告终表 OS±CI 并归属 §2.5 预注册分支 → ledger 终表行 → 决定 3b 走向。
+3. **3b 暂不开工**，等 M4 定论。
+4. ✅ GitHub 私有已确认；B0 已锁 → 可并行触发《创新点1_实验执行清单》产出（既定决策）。
 
 ## 决策日志
 - 2026-07-17：文档组织采用路由表方案，不物理拆分；《创新点1_实验执行清单》在 B0 定标后产出；Claude Code 运行于本地＝写码＋CPU 单测，一切 GPU 任务走交接包协议。
