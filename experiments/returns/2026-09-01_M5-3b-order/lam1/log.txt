@@ -1,0 +1,25 @@
+[Message]3b-order-margin-lam1
+{'dataset': 'somethingcmn', 'method': 'taskadapter', 'stop_epoch': 10, 'n_query': 1, 'n_shot': 1, 'lr': 0.001}
+L_order 0.099663 lam=1 | 2026-09-01_14-07-00
+Epoch 0 | Loss 1.277318 Acc = 52.22% +- 1.27% | L_order 0.099468 lam=1 | 2026-09-01_14-21-28
+Epoch 1 | Loss 0.980592 Acc = 65.68% +- 1.28% | L_order 0.099392 lam=1 | 2026-09-01_14-35-54
+Epoch 2 | Loss 0.815673 Acc = 73.10% +- 1.18% | L_order 0.099258 lam=1 | 2026-09-01_14-50-22
+Epoch 3 | Loss 0.705736 Acc = 77.62% +- 1.19% | L_order 0.099185 lam=1 | 2026-09-01_15-04-45
+Epoch 4 | Loss 0.640160 Acc = 79.90% +- 1.07% | L_order 0.099023 lam=1 | 2026-09-01_15-19-15
+Epoch 5 | Loss 0.568383 Acc = 82.96% +- 1.04% | L_order 0.099091 lam=1 | 2026-09-01_15-33-43
+Epoch 6 | Loss 0.524468 Acc = 84.82% +- 1.01% | L_order 0.098992 lam=1 | 2026-09-01_15-48-11
+Epoch 7 | Loss 0.470412 Acc = 86.56% +- 0.97% | L_order 0.098897 lam=1 | 2026-09-01_16-02-37
+Epoch 8 | Loss 0.434628 Acc = 88.04% +- 0.90% | L_order 0.098850 lam=1 | 2026-09-01_16-17-04
+Epoch 9 | Loss 0.404436 Acc = 88.98% +- 0.86% | 1000 Val Acc = 56.70% +- 1.28%
+best model! save...
+total tasks:1000	acc_mean:57.08	acc_std:1.308765839162988
+total tasks:2000	acc_mean:57.35	acc_std:0.9083680212336845
+total tasks:3000	acc_mean:57.053333333333335	acc_std:0.7523131111110783
+total tasks:4000	acc_mean:56.855	acc_std:0.6493259732907656
+total tasks:5000	acc_mean:57.004	acc_std:0.5770154675456108
+total tasks:6000	acc_mean:56.74666666666667	acc_std:0.5332271700559958
+total tasks:7000	acc_mean:56.81428571428572	acc_std:0.4916977445545179
+total tasks:8000	acc_mean:56.8325	acc_std:0.4589377478359674
+total tasks:9000	acc_mean:56.897777777777776	acc_std:0.43186963920829624
+total tasks:10000	acc_mean:56.9	acc_std:0.4098556370235744
+10000 Test Acc = 56.90% +- 0.41%

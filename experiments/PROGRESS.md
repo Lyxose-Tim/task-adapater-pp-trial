@@ -1,5 +1,5 @@
 # PROGRESS — 跨会话进度
-最后更新：2026-09-01（3a 闭环 OS=0.21±0.13；用户选 3b；M5 代码就绪 d6b8923，交接包⑦待 Cursor）
+最后更新：2026-09-02（M5 3b 已登账：OS 单调随 λ 上升 0.21→0.32→0.82，λ=1 无损甜点；M6 补点 λ=2,3 待 Cursor）
 
 ## 本会话进展（2026-08-31，实施）
 - **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
@@ -22,8 +22,8 @@
 | M2 | 基线 B0 定标（10000 ep） | ✅ | B0=57.01±1.64（5-seed，10ep，P1/P2×2.2.2）；vs 63.6 差 6.59pt 记复现差 |
 | M3 | 诊断主表（600–2500 ep 开发规模） | ✅ | 1000 ep：C0=57.12±1.25；OS=0.43±0.41 |
 | M4 | 诊断终表（10000 ep） | ✅ | C0=56.78±0.40；OS=0.21±0.13；§2.5 分支 2 |
-| M5 | 正则首组"训练+测试+复诊断"闭环 | ◐ | 代码就绪（L_order margin+免费午餐，d6b8923，116 单测过）；交接包⑦待 Cursor（λ∈{1,5}） |
-| M6 | 消融表＋曲线（验收三件套） | ☐ | |
+| M5 | 正则首组"训练+测试+复诊断"闭环 | ✅ | λ=1 Acc 56.90/OS 0.32（无损甜点）；λ=5 Acc 55.26/OS 0.82；OS 单调↑；已入 ledger |
+| M6 | 消融表＋曲线（验收三件套） | ◐ | 补 λ=2,3（交接包⑧）画满 λ-OS/λ-Acc 曲线、定知更点 |
 | M7+ | 创新点 1 起，见《后续创新点方案设计_v1》总调度 | ☐ | |
 
 ## 待用户拍板 / 阻塞项
@@ -48,12 +48,12 @@
 | R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
 
 ## 云端待执行（交接包队列）
-- **交接包⑦ M5-3b-order（待 Cursor）**：`handoff/2026-09-01_M5-3b-order-reg.md`。3b 顺序正则 λ∈{1,5}，各「smoke→训练 config_3b_lam{λ}.yaml→终测→复诊断(改 checkpoint 跑 diagnose.py)」闭环。代码 `d6b8923`。带回入 `returns/2026-09-01_M5-3b-order/{lam1,lam5}/`。
-- 已收包：⑥ M4-3a-final（OS=0.21±0.13）、⑤ M3-3a-dev、④ seed2more（n=5 B0=57.01±1.64）、③ multiseed、② 历史单跑。
+- **交接包⑧ M6-3b-ablation（待 Cursor）**：`handoff/2026-09-02_M6-3b-ablation.md`。补 λ=2,3 各闭环（config_3b_lam2/3.yaml → 训练+终测+复诊断），画满 λ-OS/λ-Acc 曲线、定知更点。产物入 `returns/2026-09-02_M6-3b-ablation/{lam2,lam3}/`。
+- 已收并登账：⑦ M5-3b（λ=1/5，OS 单调）、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
 - **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30448**。GPU 空闲。
 
 ## 已回收待登账
--（空；交接包⑥已写入 ledger）
+-（空；M5 λ=1/5 已入 ledger 三件套行）
 
 ## smoke 记录
 - 2026-08-29 **云端 smoke-官方管线-mini：通过**。RTX 3090，conda torch 2.1.0+cu121，CLIP JIT ViT-B-16.pt（OpenAI 官方 335MB）。Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%；Val 68% 保存 68.0.tar；终测 10 ep = 70.00%±11.43%。数值不作参考、不进 ledger。随后已启动全量 B0。
@@ -61,15 +61,16 @@
 - 2026-07-19 **smoke-官方管线-mini：通过（§8 六项全绿）**。官方代码（P1/P2＋环境坑修复后）在 mini 子集（8 类×8 段，seed 916）端到端：Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%（有限、下降、无 NaN）；Val 68% 触发 checkpoint；终测 10 ep 出数；**续跑通过**（load_weights+start_epoch 从 68.0.tar 恢复，Loss 0.93 续降）。RTX 4060 Laptop 8GB，fp32 显存峰值 ~7.9GB（贴边）。数值不作参考。
 - 2026-07-19 **R-08 对齐验证：通过**（`outputs/innovation3/ssv2/frame_alignment_r08.json`，64 段索引全等、像素差 JPEG 量级）
 - 2026-07-18 **O-MSA 等变性门控（R-02 修复后复跑）**：通过（`outputs/innovation3/ssv2/order_equivariance_post_r02.json`，真实 CLIP 权重，逐类编码口径，max_abs=0.0）→ **O-1 成立，3b 零成本负样本快速路径解锁**
+- 2026-09-01 **云端 smoke-3b-mini：通过**。`TA_CONFIG=config_mini_3b.yaml`，PID 12972。Epoch0 Loss 1.621 Acc 36.00% | L_order 0.0997 (lam=1)；Epoch1 Loss 1.141 Acc 61.00% | L_order 0.0994；Val 68.00% 保存；终测 10 ep = 70.00%±11.43%。无 NaN。数值不作参考、不进 ledger。日志：`returns/2026-09-01_M5-3b-order/smoke/3b_mini_smoke.log`。
 -（codex 遗留）smoke-innovation3-ssv2 / hmdb51、resume 探针、吞吐测量：有产物，历史参考；`outputs/innovation3/ssv2/b0/` 的 2 epoch 产物归类为本地验证性质，数字不采信、不进 ledger
 
 ## 审查记录
 - 2026-07-18：codex 初步修改全面审查（审查模式，零修改）。报告：`experiments/reviews/2026-07-18_codex初步修改全面审查.md`。P0×5（R-01 无版本控制 / R-02 文本合批破坏 O-MSA 架构 / R-03 上游实现被整体替换 / R-04 本地正式训练越界＋台账多头 / R-05 74GB 数据违禁入本地）、P1×5（R-06–R-10）、P2×2（R-11、R-12）。CPU 单测 119 项全通过。符合项确认：P1/P2/P3 处理、O-1 双重验证、OT/融合/诊断实现与方案吻合、环境四坑全部处理。
 
 ## 下一步
-1. **✅ 3b 代码就绪（本会话，用户选开工）**：L_order margin + O-1 免费午餐（d6b8923），116 单测过；交接包⑦已发。
-2. **Cursor**：跑交接包⑦（smoke→λ=1/5 训练+终测+复诊断）→ 产物入 `returns/2026-09-01_M5-3b-order/`。
-3. **收包会话（Claude）**：验收三件套（Acc/OS/分支）入 ledger → λ-Acc/λ-OS 趋势 → 定 M6 消融网格与 3b 结论。
+1. **✅ M5 登账 + M6 补点交接包⑧已发（本会话）**：λ=2,3 config + handoff。
+2. **Cursor**：跑交接包⑧（λ=2,3 闭环）→ 产物入 `returns/2026-09-02_M6-3b-ablation/`。
+3. **收包会话（Claude）**：五点（B0/1/2/3/5）画 λ-OS/λ-Acc 曲线 → 定知更点与 3b 主推荐 λ → 创新点 3 收官消融表冻结 → 进创新点 1（需用户先产出《创新点1_实验执行清单》放 docs/）。
 4. B0 已锁 → 可并行触发《创新点1_实验执行清单》产出。GitHub 私有已确认。
 
 ## 决策日志
@@ -84,3 +85,4 @@
 - 2026-08-31（用户拍板）：(1) B0 补 **seed 919/920 到 n=5**（3 种子 ±1.66 因 917 离群偏大）再锁定，M2 顺延；(2) **仓库结构对齐上游**——`official-baseline` 分支=纯上游源码（唯一内容）、`main`=改进代码（同上游结构，改进在根目录、取消 `Task-Adapter-pp/` 文件夹），**之前 push 全部清除**（main 历史 wipe 全新开始，旧全史存本地 `archive/pre-restructure` tag）；(3) 后续云端训练默认交 Cursor，Claude 只写交接包。编码器统一为官方架构+坑B+新增 checkpoint_path（保 B0 保真、兼容 fsar）。
 - 2026-08-31（收尾）：**M2 锁定**——B0 = **57.01 ± 1.64**（5 种子 56.92/59.68/56.70/56.55/55.20，sample std，SEM 0.73）；相对论文 63.6 差 6.59pt 记不可约复现差（缺口三重佐证：审计/long30/官方未修）。下游配对 Δ 用 seed 916 实例（56.92，ckpt 56.32.tar）。用户确认 **GitHub 仓私有**；Cursor 已调整云端到新结构，**seed 919/920 在 commit 60019b4 全量训练成功 → 扁平化结构获云端验证**。M2 收官，进 M3。
 - 2026-09-01：**3a 诊断闭环**（M3 dev + M4 终表）。终表 OS=0.21±0.13（CI[0.08,0.34]，§2.5 分支 2：统计显著>0 但效应极小）；顺序效应集中语义分支（语义 OS≈0.48、C0−C1=0.83），O-1（O-MSA 等变）→ 归因式(16) 阶段-窗口耦合。**用户拍板：开工 3b**（M5，增强角色）。3b 实现：L_order margin 版 + O-1 免费午餐（reindex≡重编码，单测验），从零训练 seed916+λ 与 B0 配对；首组 λ∈{1,5}，交接包⑦交 Cursor。M6（消融网格）与 3b 结论待收包。
+- 2026-09-02：**M5 3b 首组闭环收包**。验收三件套：**OS 单调随 λ 上升**（B0 0.21→λ1 0.32→λ5 0.82，直接证明 L_order 令模型更用顺序）；**λ=1 为无损甜点**（Acc 56.90≈B0 56.92、OS↑50%）；λ=5 过正则（OS↑4 倍但 Acc −1.66pt，L_order 压制 L_CE）；sanity 均过。3b 机制验证成立。M6 补 λ=2,3 画曲线定知更点（交接包⑧）。
