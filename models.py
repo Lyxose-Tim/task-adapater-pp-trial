@@ -54,6 +54,17 @@ class TaskAdapter(MetaTemplate):
         self.text = clip_encode_text_adapter(adapter_layer=text_depth)
 
         self.ca=CrossAttention()
+
+        # 创新点 1 · OT 软阶段分配开关（手册 §1.3；从全局 config 读，缺省=window 即 B0）
+        self.align_mode = getattr(params, 'align_mode', 'window')   # window|ot
+        self.ot_eps = float(getattr(params, 'ot_eps', 0.05))
+        self.ot_lam = float(getattr(params, 'ot_lam', 0.0))
+        _rho = getattr(params, 'ot_rho', None)                      # None=平衡
+        self.ot_rho = None if _rho in (None, 'none', 'None', '') else float(_rho)
+        self.ot_iters = int(getattr(params, 'ot_iters', 30))
+        self.ot_weight = getattr(params, 'ot_weight', 'mass')       # mass|uniform
+        self.frame_source = getattr(params, 'frame_source', 'ca')   # ca|raw(Option B)
+        self.ca_residual = getattr(params, 'ca_residual', 'next')   # next(开源现状)|prev(式13)
     
     
     def episode_visual(self, x):
@@ -79,7 +90,11 @@ class TaskAdapter(MetaTemplate):
         q_aft_tm=[]
 
         for frame in range(7):
-            q_aft_tm.append(self.ca(q_reshape[frame],q_reshape[frame+1],q_reshape[frame+1])+q_reshape[frame+1])
+            attended = self.ca(q_reshape[frame],q_reshape[frame+1],q_reshape[frame+1])
+            # P3 残差：next=开源现状（加 F^{i+1}=q_reshape[frame+1]）；prev=式(13)（加 q_reshape[frame]）
+            # getattr 默认 'next'：经 __new__ 构造的测试模型（未跑 __init__）仍走 B0 行为
+            residual = q_reshape[frame] if getattr(self, 'ca_residual', 'next') == 'prev' else q_reshape[frame+1]
+            q_aft_tm.append(attended + residual)
 
         q_aft_tm=torch.stack(q_aft_tm,dim=0)
         return z_query, z_proto, q_aft_tm
@@ -115,11 +130,31 @@ class TaskAdapter(MetaTemplate):
         # P2: cos_score 朝向 [n_way, N_Q]，转置为 (查询行, 类列) 与视觉分一致
         return cos_score.transpose(-2, -1)
 
-    def semantic_scores(self, q_aft_tm, label_idx, permutation=None):
-        # 语义分支：文本前向 + 阶段-窗口 cos。`permutation` 仅重排每类子动作
-        # 顺序 → 只影响语义分支、不动视觉（手册 §2.2 sanity 的实现保证）。
-        return self._fixed_window_score(
-            self._encode_stage_text(label_idx, permutation), q_aft_tm)
+    def _ot_stage_score(self, enh_embedding, q_aft_tm, z_query=None):
+        # 创新点 1：用 OT 软阶段分配替换式(16) 固定窗口。手册 §1.3。
+        # enh_embedding [K,n_way,D] → T_c [n_way,K,D]；帧源 ca(q_aft_tm 7帧)/raw(z_query 8帧)。
+        import ot_align   # 延迟导入：window 模式（B0）永不触及 OT/fsar.ot
+        if self.frame_source == 'raw':
+            if z_query is None:
+                raise ValueError("frame_source=raw 需要 z_query（Option B）")
+            F_frames = z_query.float()                    # [NQ, 8, D]
+        else:
+            F_frames = q_aft_tm.permute(1, 0, 2).float()  # [NQ, 7, D]
+        T_c = enh_embedding.permute(1, 0, 2).float()      # [n_way, K, D]
+        S, _, _ = ot_align.ot_stage_scores(
+            F_frames, T_c, eps=self.ot_eps, lam=self.ot_lam, rho=self.ot_rho,
+            iters=self.ot_iters, weight=self.ot_weight)
+        return S.to(q_aft_tm.dtype)                       # fp32 岛出口回半精度，接式(17)
+
+    def semantic_scores(self, q_aft_tm, label_idx, permutation=None, z_query=None):
+        # 语义分支打分。align_mode=window 走式(16) 固定窗口（逐位=B0）；
+        # =ot 走创新点 1 的 OT 软阶段分配。`permutation` 仅重排每类子动作顺序
+        # （只影响语义分支、不动视觉；两模式通用，供 3a 诊断施加）。
+        enh = self._encode_stage_text(label_idx, permutation)
+        # getattr 默认 'window'：__new__ 构造的测试模型（未跑 __init__）走 B0 固定窗口
+        if getattr(self, 'align_mode', 'window') == 'ot':
+            return self._ot_stage_score(enh, q_aft_tm, z_query)
+        return self._fixed_window_score(enh, q_aft_tm)
 
     def order_margin_loss(self, q_aft_tm, label_idx, order_perms, margin):
         # 创新点 3b·顺序对比正则（手册 §3.1 margin 版 + §3.2 免费午餐）：
@@ -145,7 +180,7 @@ class TaskAdapter(MetaTemplate):
         label_idx = list(label[:,0].numpy())
         z_query, z_proto, q_aft_tm = self.episode_visual(x)
         vis_dists = self.visual_scores(z_query, z_proto)
-        sem_dists = self.semantic_scores(q_aft_tm, label_idx, None)
+        sem_dists = self.semantic_scores(q_aft_tm, label_idx, None, z_query=z_query)
         order_loss = None
         if order_perms is not None:
             order_loss = self.order_margin_loss(q_aft_tm, label_idx, order_perms, order_margin)
@@ -161,7 +196,7 @@ class TaskAdapter(MetaTemplate):
         label_idx = list(label[:,0].numpy())
         z_query, z_proto, q_aft_tm = self.episode_visual(x)
         vis_dists = self.visual_scores(z_query, z_proto)
-        sem_dists = self.semantic_scores(q_aft_tm, label_idx, permutation)
+        sem_dists = self.semantic_scores(q_aft_tm, label_idx, permutation, z_query=z_query)
 
         n_q_total = self.n_way * self.n_query
         assert sem_dists.shape == (n_q_total, self.n_way), \
