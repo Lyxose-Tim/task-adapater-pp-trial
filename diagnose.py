@@ -197,6 +197,90 @@ def diagnose(test_loader, model, params):
     return report
 
 
+@torch.no_grad()
+def probe(test_loader, model, params):
+    """步 B 前置·只推理 λ 探针（内容贡献门控，用户 2026-09-05 决策）。
+
+    固定 ckpt 的 ε=params.ot_eps、ρ、iters，对 λ∈params.ot_probe_lams 只前向不训练、
+    在同一批配对 episode 上记录（逐 (q,c)/(q)/(c) 汇总 mean/p95/p99/max/min）：
+      row_cond_entropy   逐帧条件分配熵/logK（λ↑ 应↓，锐度）；
+      band_mass          最近对角带质量占比（λ↑ 应↑）；
+      content_l1_full_vs_pos  ‖π_full−π_pos‖₁（π_pos=OT(λD) 纯几何；→0=软窗口退化）；
+      cross_class_l1 / cross_query_l1  plan 随类/query 内容的成对 L1（π_pos 恒 0，>噪声=内容自适应）；
+      aux_acc_fused/sem、aux_OS         仅辅助，不据此选正式 λ。
+    判据与放行逻辑见交接包⑫。α=ot 时才有意义（align_mode 必须 ot）。
+    """
+    model.eval()
+    n_way, n_support, n_query = model.n_way, model.n_support, model.n_query
+    y_query = np.repeat(range(n_way), n_query)
+    lam_list = [float(v) for v in getattr(params, "ot_probe_lams", [0.0, 0.1, 0.3, 1.0, 3.0])]
+    c2_perms = [p for p in stage_permutations(3) if p != (0, 1, 2)]    # 5 个非恒等 = C2（辅助 OS）
+
+    stat_keys = ["row_cond_entropy", "band_mass", "content_l1_full_vs_pos",
+                 "cross_class_l1", "cross_query_l1"]
+    accum = {lam: {k: [] for k in stat_keys} for lam in lam_list}
+    acc_fused = {lam: [] for lam in lam_list}
+    acc_sem = {lam: [] for lam in lam_list}
+    os_paired = {lam: [] for lam in lam_list}                         # 逐 episode (C0−C2mean) 融合
+
+    iter_num = len(test_loader)
+    started = time.time()
+    for episode_index, (x, label) in enumerate(test_loader):
+        x = x.cuda()
+        label_idx = list(label[:, 0].numpy())
+        _, sq, t, c, h, w = x.shape
+        z_query, z_proto, q_aft_tm = model.episode_visual(x.reshape(n_way * sq * t, c, h, w))
+        vis = model.visual_scores(z_query, z_proto)                   # [N_Q, n_way]
+        per_lam = model.ot_probe(q_aft_tm, label_idx, lam_list, z_query=z_query, c2_perms=c2_perms)
+        for lam, d in per_lam.items():
+            for k in stat_keys:
+                accum[lam][k].extend(d[k].detach().flatten().cpu().tolist())
+            S = d["score"]
+            fused_c0 = _accuracy(vis * S, y_query)
+            acc_fused[lam].append(fused_c0)
+            acc_sem[lam].append(_accuracy(S, y_query))
+            c2_fused = [_accuracy(vis * d["score_c2"][j], y_query) for j in range(len(c2_perms))]
+            os_paired[lam].append(fused_c0 - float(np.mean(c2_fused)))
+        if (episode_index + 1) % 200 == 0:
+            msg = " ".join(
+                f"λ{lam:g}:H={np.mean(accum[lam]['row_cond_entropy']):.3f}"
+                f"/band={np.mean(accum[lam]['band_mass']):.3f}"
+                f"/cL1={np.mean(accum[lam]['content_l1_full_vs_pos']):.3f}"
+                for lam in lam_list)
+            print(f"[probe {episode_index+1}/{iter_num}] {msg}", flush=True)
+
+    def agg(vals):
+        arr = np.asarray(vals, dtype=np.float64)
+        return {"mean": float(arr.mean()), "p95": float(np.percentile(arr, 95)),
+                "p99": float(np.percentile(arr, 99)), "max": float(arr.max()), "min": float(arr.min())}
+
+    def acc_ci(vals):
+        m = summarize_mean_ci95(vals)
+        return {"mean": m.mean * 100, "ci95": m.ci95 * 100}
+
+    report = {
+        "mode": "ot_probe",
+        "episodes": iter_num,
+        "wall_time_s": time.time() - started,
+        "ot_eps": float(model.ot_eps),
+        "ot_rho": (None if model.ot_rho is None else float(model.ot_rho)),
+        "ot_iters": int(model.ot_iters),
+        "ot_weight": getattr(model, "ot_weight", "mass"),
+        "frame_source": getattr(model, "frame_source", "ca"),
+        "lambdas": lam_list,
+        "per_lambda": {
+            f"{lam:g}": {
+                **{k: agg(accum[lam][k]) for k in stat_keys},
+                "aux_acc_fused": acc_ci(acc_fused[lam]),
+                "aux_acc_sem": acc_ci(acc_sem[lam]),
+                "aux_OS_fused": acc_ci(os_paired[lam]),
+            } for lam in lam_list
+        },
+    }
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return report
+
+
 if __name__ == "__main__":
     params = argparse.Namespace(**read_yaml())
     setup_seed(getattr(params, "seed", 916))
@@ -224,10 +308,13 @@ if __name__ == "__main__":
     checkpoint = torch.load(params.checkpoint, map_location="cpu", weights_only=True)["state"]
     model.load_state_dict(checkpoint)
 
-    report = diagnose(test_loader, model, params)
+    is_probe = bool(getattr(params, "ot_probe", False))              # 步B前置 λ 探针（只推理）
+    report = probe(test_loader, model, params) if is_probe else diagnose(test_loader, model, params)
 
-    out_dir = os.path.join(params.work_dir, "diagnose_3a")
+    sub = "ot_probe" if is_probe else "diagnose_3a"
+    out_dir = os.path.join(params.work_dir, sub)
     os.makedirs(out_dir, exist_ok=True)
     stamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
-    with open(os.path.join(out_dir, f"diagnose_3a_{stamp}.json"), "w", encoding="utf-8") as f:
+    prefix = "probe_lambda" if is_probe else "diagnose_3a"
+    with open(os.path.join(out_dir, f"{prefix}_{stamp}.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)

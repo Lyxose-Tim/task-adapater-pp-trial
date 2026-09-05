@@ -161,6 +161,45 @@ class TaskAdapter(MetaTemplate):
             iters=self.ot_iters, weight=self.ot_weight)
         return ot_align.ot_plan_stats(plan)
 
+    def ot_probe(self, q_aft_tm, label_idx, lam_list, z_query=None, c2_perms=None):
+        # 步 B 前置·只推理 λ 探针（内容贡献门控）：固定 ε=self.ot_eps、ρ=self.ot_rho、
+        # iters=self.ot_iters，对每个 λ 求 π_full=OT(内容+λD) 与 π_pos=OT(λD 位置-only)，
+        # 返回逐 λ 的数值健康量。全程 detach，独立于打分路径（不改分数/梯度/显存图）。
+        # c2_perms 给定时另返正序+各 C2 排列分（O-1 等变：T_c 沿 K 轴 index_select，
+        # 零额外文本编码），供 probe() 算辅助 OS（λ>0 应打破顺序不变→OS>0）。
+        import ot_align
+        enh = self._encode_stage_text(label_idx, None)                # [K, n_way, D]
+        F_frames, T_c = self._ot_frames_and_text(enh, q_aft_tm, z_query)
+        num_frames, num_stages = F_frames.shape[1], T_c.shape[1]      # T, K
+        out = {}
+        for lam in lam_list:
+            lam = float(lam)
+            S, plan, _ = ot_align.ot_stage_scores(                    # plan [NQ,C,T,K], S [NQ,C]
+                F_frames, T_c, eps=self.ot_eps, lam=lam, rho=self.ot_rho,
+                iters=self.ot_iters, weight=self.ot_weight)
+            pi_pos = ot_align.ot_position_only_plan(                  # [T,K]，纯几何对照
+                num_frames, num_stages, lam=lam, eps=self.ot_eps,
+                rho=self.ot_rho, iters=self.ot_iters, device=plan.device)
+            entry = {
+                "row_cond_entropy": ot_align.row_conditional_entropy(plan),   # [NQ,C]
+                "band_mass": ot_align.band_mass(plan),                        # [NQ,C]
+                "content_l1_full_vs_pos": ot_align.plan_l1(plan, pi_pos),     # [NQ,C]
+                "cross_class_l1": ot_align.plan_pairwise_l1(plan, dim=1),     # [NQ] 同query跨类
+                "cross_query_l1": ot_align.plan_pairwise_l1(plan, dim=0),     # [C]  同类跨query
+                "score": S.detach(),                                         # [NQ,C] 正序，辅助 acc
+            }
+            if c2_perms:
+                c2 = []
+                for perm in c2_perms:
+                    idx = torch.as_tensor(list(perm), dtype=torch.long, device=T_c.device)
+                    Sp, _, _ = ot_align.ot_stage_scores(              # O-1 reindex，无额外编码
+                        F_frames, T_c.index_select(1, idx), eps=self.ot_eps, lam=lam,
+                        rho=self.ot_rho, iters=self.ot_iters, weight=self.ot_weight)
+                    c2.append(Sp.detach())
+                entry["score_c2"] = torch.stack(c2, dim=0)           # [len(c2_perms), NQ, C]
+            out[lam] = entry
+        return out
+
     def semantic_scores(self, q_aft_tm, label_idx, permutation=None, z_query=None):
         # 语义分支打分。align_mode=window 走式(16) 固定窗口（逐位=B0）；
         # =ot 走创新点 1 的 OT 软阶段分配。`permutation` 仅重排每类子动作顺序

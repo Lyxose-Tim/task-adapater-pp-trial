@@ -129,6 +129,91 @@ def test_U5b_band_mass_increases_with_lambda():
     assert all(band[i + 1] >= band[i] - 1e-3 for i in range(len(band) - 1)), f"带状质量非单调: {band}"
 
 
+def test_position_only_plan_content_free_and_uniform_at_lambda0():
+    # π_pos=OT(λD)：形状 [T,K]、帧边际硬（行和≈1/T）；λ=0 退化为均匀耦合 1/(TK)
+    T, K = 7, 3
+    p0 = ot_align.ot_position_only_plan(T, K, lam=0.0, eps=0.1, rho=None, iters=50)
+    assert p0.shape == (T, K)
+    assert torch.allclose(p0.sum(dim=1), torch.full((T,), 1.0 / T), atol=1e-4)
+    assert torch.allclose(p0, torch.full((T, K), 1.0 / (T * K)), atol=1e-4)  # λ=0 均匀
+    # λ 大：质量压向位置先验最近对角
+    pL = ot_align.ot_position_only_plan(T, K, lam=20.0, eps=0.02, rho=None, iters=80)
+    nearest = ot_align.build_D(T, K).argmin(dim=1)
+    band = pL.gather(1, nearest.view(-1, 1)).sum() / pL.sum()
+    assert band.item() > 0.8, f"位置-only 带状质量过低 {band.item():.3f}"
+
+
+def test_row_conditional_entropy_decreases_with_lambda():
+    # 逐帧条件熵：λ↑（位置先验增强）→ 分配变锐 → 归一化熵单调↓，∈[0,1]
+    torch.manual_seed(11)
+    F_frames = torch.randn(6, 7, 16)
+    T_c = torch.randn(3, 3, 16)
+    ent = []
+    for lam in (0.0, 0.1, 0.3, 1.0, 3.0):
+        _, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.05, lam=lam, rho=None, iters=60)
+        h = ot_align.row_conditional_entropy(plan)
+        assert h.shape == (6, 3)
+        assert float(h.min()) >= -1e-6 and float(h.max()) <= 1.0 + 1e-6
+        ent.append(float(h.mean()))
+    assert ent[0] > ent[-1], f"条件熵未随 λ 下降: {ent}"
+    assert all(ent[i + 1] <= ent[i] + 1e-3 for i in range(len(ent) - 1)), f"条件熵非单调↓: {ent}"
+
+
+def test_band_mass_increases_with_lambda():
+    # 最近对角带质量：λ↑ 单调↑，∈[0,1]
+    torch.manual_seed(12)
+    F_frames = torch.randn(5, 7, 16)
+    T_c = torch.randn(3, 3, 16)
+    band = []
+    for lam in (0.0, 0.1, 0.3, 1.0, 3.0):
+        _, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.05, lam=lam, rho=None, iters=60)
+        bm = ot_align.band_mass(plan)
+        assert bm.shape == (5, 3) and 0.0 - 1e-6 <= float(bm.min()) and float(bm.max()) <= 1.0 + 1e-6
+        band.append(float(bm.mean()))
+    assert band[-1] > band[0], f"带状质量未随 λ 上升: {band}"
+    assert all(band[i + 1] >= band[i] - 1e-3 for i in range(len(band) - 1)), f"带状质量非单调↑: {band}"
+
+
+def test_content_l1_positive_for_content_and_vanishes_when_flat():
+    # 内容自适应 L1(π_full,π_pos)：随机特征>0；内容恒定（全 1 特征）→ 成本只剩 λD → ≈0
+    torch.manual_seed(13)
+    T, K, lam, eps = 7, 3, 0.5, 0.05
+    pi_pos = ot_align.ot_position_only_plan(T, K, lam=lam, eps=eps, rho=None, iters=60)
+    _, plan_rand, _ = ot_align.ot_stage_scores(torch.randn(4, T, 16), torch.randn(3, K, 16),
+                                               eps=eps, lam=lam, rho=None, iters=60)
+    l1_rand = ot_align.plan_l1(plan_rand, pi_pos)
+    assert l1_rand.shape == (4, 3) and float(l1_rand.mean()) > 1e-2, "内容特征下 L1 应显著>0"
+    _, plan_flat, _ = ot_align.ot_stage_scores(torch.ones(4, T, 16), torch.ones(3, K, 16),
+                                               eps=eps, lam=lam, rho=None, iters=60)
+    l1_flat = ot_align.plan_l1(plan_flat, pi_pos)
+    assert float(l1_flat.max()) < 1e-4, f"内容恒定应退化为 π_pos，L1={float(l1_flat.max()):.2e}"
+
+
+def test_pairwise_l1_zero_for_position_only_positive_for_content():
+    # 跨类/跨query 成对 L1：内容特征>0（内容自适应）；纯几何广播 plan 恒 0
+    torch.manual_seed(14)
+    _, plan, _ = ot_align.ot_stage_scores(torch.randn(4, 7, 16), torch.randn(3, 3, 16),
+                                          eps=0.05, lam=0.5, rho=None, iters=60)
+    assert float(ot_align.plan_pairwise_l1(plan, dim=1).mean()) > 1e-3   # 跨类[NQ]
+    assert float(ot_align.plan_pairwise_l1(plan, dim=0).mean()) > 1e-3   # 跨query[C]
+    pi_pos = ot_align.ot_position_only_plan(7, 3, lam=0.5, eps=0.05, rho=None, iters=60)
+    plan_pos = pi_pos.expand(4, 3, 7, 3)                                 # 纯几何广播到 [NQ,C,T,K]
+    assert float(ot_align.plan_pairwise_l1(plan_pos, dim=1).abs().max()) < 1e-6
+    assert float(ot_align.plan_pairwise_l1(plan_pos, dim=0).abs().max()) < 1e-6
+
+
+def test_probe_stats_detached():
+    # 探针统计全程 detach，不入梯度图（与打分路径隔离）
+    F_frames = torch.randn(4, 7, 16, requires_grad=True)
+    T_c = torch.randn(3, 3, 16, requires_grad=True)
+    _, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.05, lam=0.5, rho=None, iters=30)
+    pi_pos = ot_align.ot_position_only_plan(7, 3, lam=0.5, eps=0.05, rho=None, iters=30)
+    for v in (ot_align.row_conditional_entropy(plan), ot_align.band_mass(plan),
+              ot_align.plan_l1(plan, pi_pos), ot_align.plan_pairwise_l1(plan, dim=1),
+              ot_align.plan_pairwise_l1(plan, dim=0)):
+        assert not v.requires_grad
+
+
 def test_uniform_vs_mass_weight_differ_when_unbalanced():
     torch.manual_seed(2)
     F_frames = torch.randn(4, 7, 16)
@@ -204,3 +289,21 @@ def test_U0_window_matches_fixed_and_ot_differs(official, monkeypatch):
     mo = _model(official, "ot")
     S_ot = mo.semantic_scores(q_aft, label_idx, None)
     assert S_ot.shape == (3, 3) and torch.isfinite(S_ot).all()  # ot 分派出有效分
+
+
+def test_ot_probe_wiring_and_content_adaptivity(official, monkeypatch):
+    # 步B前置探针在官方模型上接线正确：逐 λ 返回统计与形状；随机特征下内容自适应量>0
+    monkeypatch.setattr(official.clip, "tokenize", _Tok())
+    mo = _model(official, "ot")                                  # NQ=3, C=3, T=7, K=3
+    q_aft = torch.randn(7, 3, 16)
+    c2 = [(2, 1, 0), (1, 0, 2)]
+    out = mo.ot_probe(q_aft, [0, 1, 2], [0.0, 1.0], z_query=None, c2_perms=c2)
+    assert set(out.keys()) == {0.0, 1.0}
+    for lam, d in out.items():
+        assert d["row_cond_entropy"].shape == (3, 3) and d["band_mass"].shape == (3, 3)
+        assert d["content_l1_full_vs_pos"].shape == (3, 3)
+        assert d["cross_class_l1"].shape == (3,) and d["cross_query_l1"].shape == (3,)
+        assert d["score"].shape == (3, 3) and d["score_c2"].shape == (2, 3, 3)
+        assert torch.isfinite(d["score"]).all()
+    # 内容驱动：跨类 plan 成对 L1 显著>0（π_pos 恒 0）
+    assert float(out[1.0]["cross_class_l1"].mean()) > 1e-4
