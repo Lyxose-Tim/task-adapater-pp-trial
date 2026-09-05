@@ -1,0 +1,41 @@
+# B0 正式定标配置（云端，SSv2-Small 5-way 1-shot，CMN 划分）
+# 与上游 config.yaml 默认协议一致：10 epoch × 1000 episode，warm_up 8，
+# 终测 10000 episode，全局种子由 seed 字段控制（缺省 916）。
+# 经 TA_CONFIG=config_b0.yaml 加载；云端唯一需按机器改的字段：
+# dataset_base_path（指向含 smsm_cmn/annotations/ 的数据根）与 num_workers。
+# 多种子定标：复制本文件改 seed（如 917/918）与 work_dir/message 即可。
+seed: 916
+dataset: "somethingcmn"
+dataset_base_path: "data/full/"
+method: "taskadapter"
+train_n_way: 5
+test_n_way: 5
+n_query: 1
+n_shot: 1
+num_gpus: 1
+train_aug: True
+work_dir: "./workspace_I1B_lam03/"
+num_segments: 8
+train_episode: 1000
+test_episode: 1000
+eval_episode: 1000
+test_model: False
+load_weights: False
+checkpoint: ""
+start_epoch: 0
+stop_epoch: 10
+warm_up_epoch: 8
+text_depth: 2
+lr: 0.001
+num_workers: 8
+message: "I1-B-lam0.3"
+# 创新点 1 · 步 A：平衡 OT（λ=0, ρ=None），扫 ε。OS 应≈0（方案 §1.2 命题实证）。
+align_mode: ot
+ot_eps: 0.1
+ot_lam: 0.3
+ot_rho: none
+ot_iters: 30
+ot_weight: mass
+frame_source: ca
+ca_residual: next
+diagnose_episodes: 1000

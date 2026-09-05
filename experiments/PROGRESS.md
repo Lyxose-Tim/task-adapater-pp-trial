@@ -1,5 +1,5 @@
 # PROGRESS — 跨会话进度
-最后更新：2026-09-03（创新点 1 代码就绪 e17a9aa：ot_align.py+align_mode 分派，U0–U4 过；M7 步 A 交接包⑨待 Cursor）
+最后更新：2026-09-05（M7 步 A 登账：平衡 OT OS≡0 证实方案§1.2 命题，ε*=0.1；步 B λ 扫描交接包⑩待 Cursor）
 
 ## 本会话进展（2026-08-31，实施）
 - **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
@@ -24,8 +24,9 @@
 | M4 | 诊断终表（10000 ep） | ✅ | C0=56.78±0.40；OS=0.21±0.13；§2.5 分支 2 |
 | M5 | 正则首组"训练+测试+复诊断"闭环 | ✅ | λ=1 Acc 56.90/OS 0.32（无损甜点）；λ=5 Acc 55.26/OS 0.82；OS 单调↑；已入 ledger |
 | M6 | 消融表＋曲线（验收三件套） | ✅ | 5 点 λ 曲线（B0/1/2/3/5）：λ∈[1,3] 无损平台 OS~0.33、λ=5 OS 0.82/Acc−1.66；图 `experiments/figures/3b_lambda_curve.png`；主推荐 λ=3。**创新点 3 闭环** |
-| M7 | 创新点 1：OT 软阶段分配（实现+步A平衡OT） | ◐ | 代码就绪（ot_align.py+models.align_mode，e17a9aa，U0–U4 过 125 单测）；步 A ε 网格交接包⑨待 Cursor |
-| M8/M9 | 创新点 1 步 B/C（λ/ρ 扫描）+ 消融终表 | ☐ | 步 A 定 ε* 后发 |
+| M7 | 创新点 1：OT 软阶段分配（实现+步A平衡OT） | ✅ | 平衡OT(λ=0) OS≡0（ε01/1 精确0，ε05/5 CI含0）证实方案§1.2 命题（vs B0 固定窗口 0.21）；**ε*=0.1**（dev Acc 57.56 最高）；已入 ledger |
+| M8 | 创新点 1 步 B（λ 扫描，λ-Acc/λ-OS 双曲线） | ◐ | 交接包⑩待 Cursor（ε=0.1 固定，λ∈{0.1,0.3,1,3}） |
+| M9 | 创新点 1 步 C（ρ 不平衡+时序鲁棒）+ 消融终表 10000ep | ☐ | 步 B 定 λ* 后发 |
 | 创新点 2 / 4a | 见 docs/创新点2·4 手册（已入库） | ☐ | 创新点 2 复用 ot_align；4a 纯推理融合 |
 
 ## 待用户拍板 / 阻塞项
@@ -50,12 +51,13 @@
 | R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
 
 ## 云端待执行（交接包队列）
-- **交接包⑨ M7-I1A（待 Cursor）**：`handoff/2026-09-03_M7-innov1-stepA.md`。创新点 1 步 A 平衡 OT，ε∈{0.01,0.05,0.1,0.5} 各闭环（smoke→config_I1A_eps*.yaml 训练+dev1000ep+复诊断）。核心验证 OS≈0（方案 §1.2 命题）。代码 `e17a9aa`。产物入 `returns/2026-09-03_M7-I1A/eps*/`。
-- 已收并登账：⑧ M6-3b、⑦ M5-3b、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
+- **交接包⑩ M8-I1B（待 Cursor）**：`handoff/2026-09-05_M8-innov1-stepB.md`。步 B 固定 ε*=0.1，扫 λ∈{0.1,0.3,1,3}（config_I1B_lam*.yaml），各闭环（训练+dev1000ep+复诊断）→ λ-Acc/λ-OS 双曲线。产物入 `returns/2026-09-05_M8-I1B/lam*/`。
+- 已收并登账：⑨ M7-I1A（步A 平衡OT OS≡0，ε*=0.1）、⑧ M6-3b、⑦ M5-3b、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
 - **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30448**。GPU 空闲。
 
 ## 已回收待登账
--（空；M6 λ=2/3 已入 ledger）
+-（空；M7 步 A 四档 ε 已入 ledger，OS≡0 命题证实，ε*=0.1）
+- 对照 B0 Acc 56.92 / OS 0.21。四档 OS 均≈0；Acc 以 ε=0.1 最高。
 
 ## smoke 记录
 - 2026-08-29 **云端 smoke-官方管线-mini：通过**。RTX 3090，conda torch 2.1.0+cu121，CLIP JIT ViT-B-16.pt（OpenAI 官方 335MB）。Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%；Val 68% 保存 68.0.tar；终测 10 ep = 70.00%±11.43%。数值不作参考、不进 ledger。随后已启动全量 B0。
@@ -63,17 +65,17 @@
 - 2026-07-19 **smoke-官方管线-mini：通过（§8 六项全绿）**。官方代码（P1/P2＋环境坑修复后）在 mini 子集（8 类×8 段，seed 916）端到端：Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%（有限、下降、无 NaN）；Val 68% 触发 checkpoint；终测 10 ep 出数；**续跑通过**（load_weights+start_epoch 从 68.0.tar 恢复，Loss 0.93 续降）。RTX 4060 Laptop 8GB，fp32 显存峰值 ~7.9GB（贴边）。数值不作参考。
 - 2026-07-19 **R-08 对齐验证：通过**（`outputs/innovation3/ssv2/frame_alignment_r08.json`，64 段索引全等、像素差 JPEG 量级）
 - 2026-07-18 **O-MSA 等变性门控（R-02 修复后复跑）**：通过（`outputs/innovation3/ssv2/order_equivariance_post_r02.json`，真实 CLIP 权重，逐类编码口径，max_abs=0.0）→ **O-1 成立，3b 零成本负样本快速路径解锁**
-- 2026-09-01 **云端 smoke-3b-mini：通过**。`TA_CONFIG=config_mini_3b.yaml`，PID 12972。Epoch0 Loss 1.621 Acc 36.00% | L_order 0.0997 (lam=1)；Epoch1 Loss 1.141 Acc 61.00% | L_order 0.0994；Val 68.00% 保存；终测 10 ep = 70.00%±11.43%。无 NaN。数值不作参考、不进 ledger。日志：`returns/2026-09-01_M5-3b-order/smoke/3b_mini_smoke.log`。
+- 2026-09-04 **云端 smoke-I1A-mini-ot：通过**。`TA_CONFIG=config_mini_ot.yaml`（align_mode=ot, ε=0.05, λ=0）。Epoch0 Loss 1.533 Acc 35% → Epoch1 Loss 1.063 Acc 58%；Val 64% 保存；终测 10 ep = 70.00%±11.43%。无 NaN。数值不作参考。日志：`returns/2026-09-03_M7-I1A/smoke/I1A_mini_smoke.log`。
 -（codex 遗留）smoke-innovation3-ssv2 / hmdb51、resume 探针、吞吐测量：有产物，历史参考；`outputs/innovation3/ssv2/b0/` 的 2 epoch 产物归类为本地验证性质，数字不采信、不进 ledger
 
 ## 审查记录
 - 2026-07-18：codex 初步修改全面审查（审查模式，零修改）。报告：`experiments/reviews/2026-07-18_codex初步修改全面审查.md`。P0×5（R-01 无版本控制 / R-02 文本合批破坏 O-MSA 架构 / R-03 上游实现被整体替换 / R-04 本地正式训练越界＋台账多头 / R-05 74GB 数据违禁入本地）、P1×5（R-06–R-10）、P2×2（R-11、R-12）。CPU 单测 119 项全通过。符合项确认：P1/P2/P3 处理、O-1 双重验证、OT/融合/诊断实现与方案吻合、环境四坑全部处理。
 
 ## 下一步
-1. **✅ 创新点 1 代码就绪 + 步 A 交接包⑨（本会话）**：ot_align.py + models.align_mode 分派（e17a9aa），U0–U4 过；config_I1A_eps* + handoff⑨。三份创新点手册入 docs/。
-2. **Cursor**：跑交接包⑨（ε 网格平衡 OT）→ 产物入 `returns/2026-09-03_M7-I1A/`。
-3. **收包会话（Claude）**：核 OS≈0 命题（方案 §1.2）→ 定 ε* → ledger（OT 增补字段）→ 发步 B（固定 ε* 扫 λ∈{0.1,0.3,1,3}，λ-Acc/λ-OS 双曲线）交接包。
-4. 后续：步 C（ρ 扫描+时序鲁棒性截断评测）→ M9 消融终表（10000ep）；创新点 2（复用 ot_align 质检/择优）、4a（fusion.py 融合参数化）手册已入库，待创新点 1 主线定档。
+1. **✅ M7 步 A 登账 + 步 B 交接包⑩（本会话）**：平衡 OT OS≡0 证实方案§1.2 命题（vs B0 固定窗口 0.21），ε*=0.1；config_I1B_lam* + handoff⑩。
+2. **Cursor**：跑交接包⑩（ε=0.1，λ∈{0.1,0.3,1,3}）→ 产物入 `returns/2026-09-05_M8-I1B/`。
+3. **收包会话（Claude）**：画 λ-Acc/λ-OS 双曲线（含步 A 的 λ=0 点：Acc 57.56/OS 0）→ 定 λ*（Acc 是否有内点最优）→ 发步 C（ρ 不平衡+阶段 D 时序鲁棒截断评测）交接包。
+4. 后续：M9 消融终表（10000ep 核心行 ①B0/②OT平衡/③+λ/④+ρ）；创新点 2/4a 手册已入库待创新点 1 主线定档。可选：步 B 若曲线异常再插桩 π 熵/Sinkhorn 残差。
 
 ## 决策日志
 - 2026-07-17：文档组织采用路由表方案，不物理拆分；《创新点1_实验执行清单》在 B0 定标后产出；Claude Code 运行于本地＝写码＋CPU 单测，一切 GPU 任务走交接包协议。
@@ -90,3 +92,4 @@
 - 2026-09-02：**M5 3b 首组闭环收包**。验收三件套：**OS 单调随 λ 上升**（B0 0.21→λ1 0.32→λ5 0.82，直接证明 L_order 令模型更用顺序）；**λ=1 为无损甜点**（Acc 56.90≈B0 56.92、OS↑50%）；λ=5 过正则（OS↑4 倍但 Acc −1.66pt，L_order 压制 L_CE）；sanity 均过。3b 机制验证成立。M6 补 λ=2,3 画曲线定知更点（交接包⑧）。
 - 2026-09-03：**M6 收官，创新点 3 闭环**。5 点 λ 曲线（B0/1/2/3/5）：**λ∈[1,3] 无损平台**（OS 0.32/0.33/0.34，Acc 56.90/56.88/56.98≈B0），**λ=5 过正则**（OS 0.82 但 Acc 55.26）。主推荐 **λ=3**（平台顶点，OS↑~60% 且 Acc≥B0）。消融表+曲线（`experiments/figures/3b_lambda_curve.png`）齐备。创新点 3 完整叙事成立，进创新点 1（M7，待用户执行清单）。
 - 2026-09-03：**创新点 1 实现就绪**（用户上传创新点 1/2/4 手册=执行清单，入 docs/）。`ot_align.py`（复用已单测 fsar.ot 的 log 域单侧不平衡 Sinkhorn）+ models.py `align_mode` 开关（window 逐位=B0 / ot 走 OT）；帧源 ca|raw、P3 残差 next|prev 开关。U0–U4 单测全过（排列不变<1e-4 实证方案 §1.2 命题、带状极限、梯度健康、变 K）。步 A（平衡 OT ε 网格）交接包⑨发 Cursor，核心待验 OS≈0。B0/3a/3b 逐位不受影响（align_mode 缺省 window + getattr 默认）。
+- 2026-09-05：**M7 步 A 收包**。平衡 OT（λ=0, ρ=None）四档 ε∈{0.01,0.05,0.1,0.5}：**OS≡0**（ε=0.01/0.1 精确 0.000、ε=0.05/0.5 为 0.016/0.008 CI 含 0，语义 C0−C1 全 0.000）→ **方案 §1.2 命题在真实权重上证实**（对照 B0 固定窗口 OS=0.21±0.13 显著>0；这是"预测→验证"表的关键格）。dev Acc 56.68/56.94/57.56/56.82 均与 B0 同量级 → 纯内容驱动的平衡 OT 不损精度。**选 ε*=0.1**（dev Acc 最高）。OT 训练图 smoke 已过。步 B（固定 ε*，扫 λ∈{0.1,0.3,1,3}，λ-Acc/λ-OS 双曲线）交接包⑩发 Cursor。（π 熵/Sinkhorn 残差本轮未插桩，OS+Acc 足以定 ε*；步 B 需要再加。）
