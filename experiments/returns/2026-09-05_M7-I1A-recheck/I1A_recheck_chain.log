@@ -1,0 +1,12 @@
+[2026-09-05T12:22:17+00:00] I1A_recheck chain start
+[2026-09-05T12:22:17+00:00] START TA_CONFIG=config_3a_I1A_recheck_eps001.yaml
+[2026-09-05T12:46:29+00:00] DONE TA_CONFIG=config_3a_I1A_recheck_eps001.yaml exit=0 log=/root/rivermind-data/I1A_eps001_recheck.log
+[2026-09-05T12:46:29+00:00] START TA_CONFIG=config_3a_I1A_recheck_eps005.yaml
+[2026-09-05T13:10:40+00:00] DONE TA_CONFIG=config_3a_I1A_recheck_eps005.yaml exit=0 log=/root/rivermind-data/I1A_eps005_recheck.log
+[2026-09-05T13:10:40+00:00] START TA_CONFIG=config_3a_I1A_recheck_eps01.yaml
+[2026-09-05T13:34:50+00:00] DONE TA_CONFIG=config_3a_I1A_recheck_eps01.yaml exit=0 log=/root/rivermind-data/I1A_eps01_recheck.log
+[2026-09-05T13:34:50+00:00] START TA_CONFIG=config_3a_I1A_recheck_eps05.yaml
+[2026-09-05T13:59:06+00:00] DONE TA_CONFIG=config_3a_I1A_recheck_eps05.yaml exit=0 log=/root/rivermind-data/I1A_eps05_recheck.log
+[2026-09-05T13:59:06+00:00] START TA_CONFIG=config_3a_I1A_eps01_iters60.yaml
+[2026-09-05T14:24:25+00:00] DONE TA_CONFIG=config_3a_I1A_eps01_iters60.yaml exit=0 log=/root/rivermind-data/I1A_eps01_iters60.log
+[2026-09-05T14:24:25+00:00] ALL_DONE

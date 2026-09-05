@@ -1,0 +1,34 @@
+交接包⑪ M7 I1-A-recheck 验收（插桩复诊，不重训，2026-09-05）
+对照 experiments/handoff/2026-09-05_M7-I1A-instrumented-recheck.md §4
+代码：main @ dcadf44（ot_plan_stats + ot_diagnostics + 插桩 diagnose.py）
+ckpt：步 A 四档 best（I1A_eps001_56.32.tar / I1A_eps005_best.tar / I1A_eps01_best.tar / I1A_eps05_best.tar）
+协议：seed 916、1000 ep、align_mode=ot、λ=0、ρ=none、frame=ca；work_dir=workspace_I1A_recheck_*（未覆盖步 A JSON）
+墙钟：链 12:22–14:24 UTC（约 2h02m）；单档 ~24min（wall_time_s≈1441–1447）；显存 1641MiB
+sanity_text_perturb_leaves_visual_unchanged：五份 JSON 均为 true
+
+§4 四判据
+[x] 四档 U1（u1_sem_max_abs_diff_C0_vs_C2.max）≈0：4.16e-5 / 3.47e-5 / 3.31e-5 / 1.97e-5，均 <1e-3（理想档）
+[x] 平衡档 row/col_residual mean ≪1e-2（1e-6～1e-7）；stage_mass_min≈1/3>0；total_mass≈1
+[!] ε*=0.1 的 pi_entropy_norm mean=0.99934 **已趋 1**（判据「未趋 1」未过）；ε↑熵↑单调：0.01→0.956 / 0.05→0.997 / 0.1→0.999 / 0.5→1.000
+[x] iters 30 vs 60（同 ε=0.1 ckpt）：C0 均为 57.56±1.25；per_episode_c0_fused **1000/1000 逐元素一致**；残差持平（未劣化）→ iters=30 足够
+[x] 插桩后 C0 与步 A 原表 **逐档完全一致**（分数未被插桩改变）
+
+复诊 vs 步 A（C0 融合 / OS）
+ε=0.01  C0 57.24±1.27  OS 0.000±0.000  （步 A 同）
+ε=0.05  C0 56.46±1.24  OS 0.016±0.022  （步 A 同）
+ε=0.1   C0 57.56±1.25  OS 0.000±0.000  （步 A 同）
+ε=0.5   C0 56.68±1.24  OS 0.008±0.016  （步 A 同）
+ε=0.1 iters=60：C0/OS 与 iters=30 相同
+
+点 6 配对 ΔAcc（per_episode_c0_fused，ε=0.1 − ε=0.05）
+Δ = +1.10 pt，95% CI 半宽 0.69 pt，区间 [0.41, 1.79]，不含 0。
+
+OT 数值摘要（mean）
+          entropy   row_res      col_res      stage_mass_min
+ε=0.01    0.9556    2.38e-6      1.42e-6      0.3333
+ε=0.05    0.9974    5.89e-7      3.20e-7      0.3333
+ε=0.1     0.9993    2.58e-7      1.11e-7      0.3333
+ε=0.5     1.0000    1.28e-7      8.07e-8      0.3333
+
+结论：U1 逐元素、残差、阶段质量、iters 充分、插桩无副作用均成立；**π 在 ε≥0.05 已接近均匀**（平衡 OT + 中等/大 ε 的预期形态，λ=0 未拉带状）。
+交接包⑩步 B（固定 ε=0.1 扫 λ）**本包不自动放行**——熵判据未过，是否仍用 ε*=0.1 进 λ 扫描（λ 的作用正是打破均匀、拉出带状）需用户/方案侧拍板。
