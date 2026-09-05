@@ -130,10 +130,8 @@ class TaskAdapter(MetaTemplate):
         # P2: cos_score 朝向 [n_way, N_Q]，转置为 (查询行, 类列) 与视觉分一致
         return cos_score.transpose(-2, -1)
 
-    def _ot_stage_score(self, enh_embedding, q_aft_tm, z_query=None):
-        # 创新点 1：用 OT 软阶段分配替换式(16) 固定窗口。手册 §1.3。
-        # enh_embedding [K,n_way,D] → T_c [n_way,K,D]；帧源 ca(q_aft_tm 7帧)/raw(z_query 8帧)。
-        import ot_align   # 延迟导入：window 模式（B0）永不触及 OT/fsar.ot
+    def _ot_frames_and_text(self, enh_embedding, q_aft_tm, z_query=None):
+        # 组装 OT 输入：F [NQ,T,D]（ca 7帧 / raw 8帧）、T_c [n_way,K,D]。fp32。
         if self.frame_source == 'raw':
             if z_query is None:
                 raise ValueError("frame_source=raw 需要 z_query（Option B）")
@@ -141,10 +139,27 @@ class TaskAdapter(MetaTemplate):
         else:
             F_frames = q_aft_tm.permute(1, 0, 2).float()  # [NQ, 7, D]
         T_c = enh_embedding.permute(1, 0, 2).float()      # [n_way, K, D]
+        return F_frames, T_c
+
+    def _ot_stage_score(self, enh_embedding, q_aft_tm, z_query=None):
+        # 创新点 1：用 OT 软阶段分配替换式(16) 固定窗口。手册 §1.3。
+        import ot_align   # 延迟导入：window 模式（B0）永不触及 OT/fsar.ot
+        F_frames, T_c = self._ot_frames_and_text(enh_embedding, q_aft_tm, z_query)
         S, _, _ = ot_align.ot_stage_scores(
             F_frames, T_c, eps=self.ot_eps, lam=self.ot_lam, rho=self.ot_rho,
             iters=self.ot_iters, weight=self.ot_weight)
         return S.to(q_aft_tm.dtype)                       # fp32 岛出口回半精度，接式(17)
+
+    def ot_diagnostics(self, q_aft_tm, label_idx, z_query=None):
+        # 无侵入插桩：返回 C0 正序 OT plan 的数值健康统计（π.detach()，
+        # **不改分数/梯度/显存图**——本方法独立于打分路径，仅诊断调用）。
+        import ot_align
+        enh = self._encode_stage_text(label_idx, None)
+        F_frames, T_c = self._ot_frames_and_text(enh, q_aft_tm, z_query)
+        _, plan, _ = ot_align.ot_stage_scores(
+            F_frames, T_c, eps=self.ot_eps, lam=self.ot_lam, rho=self.ot_rho,
+            iters=self.ot_iters, weight=self.ot_weight)
+        return ot_align.ot_plan_stats(plan)
 
     def semantic_scores(self, q_aft_tm, label_idx, permutation=None, z_query=None):
         # 语义分支打分。align_mode=window 走式(16) 固定窗口（逐位=B0）；

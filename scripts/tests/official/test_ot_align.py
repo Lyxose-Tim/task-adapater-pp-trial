@@ -74,6 +74,61 @@ def test_U4_variable_K_shapes(K):
     assert torch.isfinite(S).all()
 
 
+def test_plan_stats_instrumentation_is_side_effect_free():
+    # 插桩不改分数（用户要求：插桩前后原始输出必须一致），且统计已 detach 无梯度
+    torch.manual_seed(3)
+    F_frames = torch.randn(4, 7, 16, requires_grad=True)
+    T_c = torch.randn(3, 3, 16, requires_grad=True)
+    S1, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.1, lam=0.3, rho=None, iters=30)
+    stats = ot_align.ot_plan_stats(plan)
+    S2, _, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.1, lam=0.3, rho=None, iters=30)
+    torch.testing.assert_close(S1, S2)                      # 插桩前后分数逐元素一致
+    for v in stats.values():
+        assert not v.requires_grad                          # 统计不入梯度图
+
+
+def test_balanced_plan_marginals_and_total():
+    # 平衡 OT：帧/阶段边际残差≈0、总质量≈1、熵∈[0,1]
+    torch.manual_seed(4)
+    _, plan, _ = ot_align.ot_stage_scores(torch.randn(3, 7, 16), torch.randn(2, 3, 16),
+                                          eps=0.1, lam=0.0, rho=None, iters=50)
+    st = ot_align.ot_plan_stats(plan)
+    assert float(st["row_residual"].max()) < 1e-3
+    assert float(st["col_residual"].max()) < 1e-3           # 平衡档阶段边际也硬
+    assert abs(float(st["total_mass"].mean()) - 1.0) < 1e-4
+    assert 0.0 <= float(st["pi_entropy_norm"].min()) <= float(st["pi_entropy_norm"].max()) <= 1.0 + 1e-6
+
+
+def test_U5a_entropy_increases_with_eps():
+    # 点5：固定特征、只增大 ε，π 归一化熵总体上升
+    torch.manual_seed(5)
+    F_frames = torch.randn(6, 7, 16)
+    T_c = torch.randn(3, 3, 16)
+    ent = []
+    for e in (0.01, 0.05, 0.1, 0.5):
+        _, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=e, lam=0.0, rho=None, iters=60)
+        ent.append(float(ot_align.ot_plan_stats(plan)["pi_entropy_norm"].mean()))
+    assert ent[-1] > ent[0], f"熵未随 ε 上升: {ent}"
+    assert all(ent[i + 1] >= ent[i] - 1e-3 for i in range(len(ent) - 1)), f"熵非单调: {ent}"
+
+
+def test_U5b_band_mass_increases_with_lambda():
+    # 点5：固定特征、只增大 λ，位置先验对角带质量总体上升
+    torch.manual_seed(6)
+    T, K = 7, 3
+    F_frames = torch.randn(4, T, 16)
+    T_c = torch.randn(3, K, 16)
+    nearest = ot_align.build_D(T, K).argmin(dim=1)         # 每帧最近对角阶段
+    band = []
+    for lam in (0.0, 0.1, 0.3, 1.0, 3.0):
+        _, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.05, lam=lam, rho=None, iters=60)
+        p = plan.detach()
+        frac = p.gather(-1, nearest.view(1, 1, T, 1).expand(*p.shape[:2], T, 1)).sum() / p.sum()
+        band.append(float(frac))
+    assert band[-1] > band[0], f"带状质量未随 λ 上升: {band}"
+    assert all(band[i + 1] >= band[i] - 1e-3 for i in range(len(band) - 1)), f"带状质量非单调: {band}"
+
+
 def test_uniform_vs_mass_weight_differ_when_unbalanced():
     torch.manual_seed(2)
     F_frames = torch.randn(4, 7, 16)

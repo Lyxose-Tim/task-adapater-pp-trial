@@ -83,4 +83,36 @@ def ot_stage_scores(
     return score, result.plan, result.mass
 
 
-__all__ = ["build_D", "sinkhorn_log", "ot_stage_scores"]
+def ot_plan_stats(plan: Tensor) -> dict:
+    """从传输计划 π 计算数值健康统计（**全程 detach，不入梯度/不改分数/不占计算图**）。
+
+    Args:
+        plan: [..., T, K] 传输计划（ot_stage_scores 的第二个返回值）。
+
+    Returns:
+        逐 (前导维) 张量字典：
+          pi_entropy_norm  归一化熵 H(π)/log(TK) ∈[0,1]，趋 1=π 趋均匀（ε 过大）；
+          row_residual     ‖π·1_K − a‖₁（帧侧硬边际残差，a=1/T，应≈0）；
+          col_residual     ‖π·1_T − b‖₁（阶段侧边际残差，b=1/K；平衡档应≈0，不平衡为诊断量）；
+          stage_mass_min   min_s m_s（阶段最小质量，识别"某阶段从不被分帧"的退化）；
+          total_mass       Σπ（应≈1）。
+    """
+    p = plan.detach()
+    num_frames, num_stages = p.shape[-2], p.shape[-1]
+    a = 1.0 / num_frames
+    b = 1.0 / num_stages
+    total = p.sum(dim=(-2, -1))
+    pn = p / total.clamp_min(1e-12).unsqueeze(-1).unsqueeze(-1)
+    ent = -(pn.clamp_min(1e-12) * pn.clamp_min(1e-12).log()).sum(dim=(-2, -1))
+    ent_norm = ent / math.log(num_frames * num_stages) if num_frames * num_stages > 1 else ent * 0.0
+    stage_mass = p.sum(dim=-2)                       # [..., K]
+    return {
+        "pi_entropy_norm": ent_norm,                 # [...]
+        "row_residual": (p.sum(dim=-1) - a).abs().sum(dim=-1),   # [...]
+        "col_residual": (stage_mass - b).abs().sum(dim=-1),      # [...]
+        "stage_mass_min": stage_mass.min(dim=-1).values,         # [...]
+        "total_mass": total,                         # [...]
+    }
+
+
+__all__ = ["build_D", "sinkhorn_log", "ot_stage_scores", "ot_plan_stats"]

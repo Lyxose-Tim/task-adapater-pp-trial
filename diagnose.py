@@ -78,6 +78,10 @@ def diagnose(test_loader, model, params):
     sem_acc = ConditionAccumulator()                  # 仅语义分
     vis_acc = ConditionAccumulator()                  # 仅视觉分
 
+    is_ot = getattr(model, "align_mode", "window") == "ot"
+    sem_maxabs = []                                   # 逐 episode：max|sem(C0)-sem(C2 各排列)|（U1 逐元素）
+    ot_stats_accum = {}                               # OT 插桩：各统计量的逐 (q,c) 值汇集（align_mode=ot）
+
     iter_num = len(test_loader)
     started = time.time()
     for episode_index, (x, label) in enumerate(test_loader):
@@ -92,10 +96,11 @@ def diagnose(test_loader, model, params):
         z_query, z_proto, q_aft_tm = model.episode_visual(flat(x))
         vis_normal = model.visual_scores(z_query, z_proto)   # [N_Q, n_way]，文本无关
 
-        episode_fused, episode_sem, episode_vis = {}, {}, {}
+        episode_fused, episode_sem, episode_vis, episode_sem_raw = {}, {}, {}, {}
 
         def score_text(cond, q_aft, vis, perm):
-            sem = model.semantic_scores(q_aft, label_idx, perm)
+            sem = model.semantic_scores(q_aft, label_idx, perm, z_query=z_query)
+            episode_sem_raw[cond] = sem.detach()
             episode_fused[cond] = _accuracy(vis * sem, y_query)
             episode_sem[cond] = _accuracy(sem, y_query)
             episode_vis[cond] = _accuracy(vis, y_query)
@@ -108,6 +113,17 @@ def diagnose(test_loader, model, params):
             score_text(name, q_aft_tm, vis_normal, perm)
             c2_fused.append(episode_fused[name])
         episode_fused["C2mean"] = float(np.mean(c2_fused))
+
+        # U1 逐元素：正序 vs 各 C2 排列的 sem 最大绝对差（平衡 OT/λ=0 应≈0，比 OS=0 更严）
+        sem_maxabs.append(max(
+            float((episode_sem_raw["C0"] - episode_sem_raw[f"C2p{k}"]).abs().max())
+            for k in range(len(c2_perms))))
+
+        # OT 数值健康插桩（仅 align_mode=ot；detach，不改分数/梯度）
+        if is_ot:
+            stats = model.ot_diagnostics(q_aft_tm, label_idx, z_query)
+            for key, val in stats.items():
+                ot_stats_accum.setdefault(key, []).extend(val.detach().flatten().cpu().tolist())
 
         # ---- 帧反转（C3）与帧随机打乱（C4）：各自重做一次视觉前向，文本正序 ----
         rev_perm = make_frame_permutation(t, mode="reverse")
@@ -144,7 +160,24 @@ def diagnose(test_loader, model, params):
         "OS_C0_minus_C2mean": pct(acc.order_sensitivity("C0", ["C2mean"])),
         "delta_C0_minus_C1": pct(acc.paired_difference("C0", "C1")),
         "text_perms": {"identity": list(identity), "reverse": list(reverse), "C2": [list(p) for p in c2_perms]},
+        # U1 逐元素（比 OS=0 严）：正序 vs C2 各排列 sem 的逐 episode 最大绝对差
+        "u1_sem_max_abs_diff_C0_vs_C2": {
+            "max": float(np.max(sem_maxabs)), "mean": float(np.mean(sem_maxabs)),
+            "p99": float(np.percentile(sem_maxabs, 99)),
+        },
     }
+
+    # 逐 episode C0 融合 acc（供跨 checkpoint 配对 ΔAcc；同 seed 916 episode 流对齐）
+    report["per_episode_c0_fused"] = [float(v) for v in acc.values("C0")]
+
+    # OT 数值健康插桩汇总（align_mode=ot 才有）：mean/p95/p99/max，不逐 (q,c) 打印
+    if is_ot and ot_stats_accum:
+        def agg(vals):
+            arr = np.asarray(vals, dtype=np.float64)
+            return {"mean": float(arr.mean()), "p95": float(np.percentile(arr, 95)),
+                    "p99": float(np.percentile(arr, 99)), "max": float(arr.max()),
+                    "min": float(arr.min())}
+        report["ot_plan_stats"] = {key: agg(vals) for key, vals in ot_stats_accum.items()}
 
     # sanity（手册 §2.2）：文本扰动不得改变仅视觉分 —— C0/C1/C2 的 vis 应逐 episode 相同
     vis_c0 = np.asarray(vis_acc.values("C0"))
@@ -154,9 +187,11 @@ def diagnose(test_loader, model, params):
     )
     report["sanity_text_perturb_leaves_visual_unchanged"] = sanity_ok
 
-    print(json.dumps({k: report[k] for k in ("episodes", "fused", "OS_C0_minus_C2mean",
-          "delta_C0_minus_C1", "sanity_text_perturb_leaves_visual_unchanged")},
-          ensure_ascii=False, indent=2))
+    _keys = ["episodes", "fused", "OS_C0_minus_C2mean", "delta_C0_minus_C1",
+             "u1_sem_max_abs_diff_C0_vs_C2", "sanity_text_perturb_leaves_visual_unchanged"]
+    if "ot_plan_stats" in report:
+        _keys.append("ot_plan_stats")
+    print(json.dumps({k: report[k] for k in _keys}, ensure_ascii=False, indent=2))
     if not sanity_ok:
         print("WARNING: vis-only accuracy changed under text permutation — code bug (手册 §2.2)", flush=True)
     return report
