@@ -58,36 +58,64 @@ class VideoDataset:
         return len(self.video_list)
 
 
+def sample_frame_ids(num_frames, num_segments, sample_window=None):
+    """评测期均匀取中心采样的 1-based 帧下标（创新点1 阶段 D 时序鲁棒截断）。
+
+    sample_window=None → 全片 [0,1]，**逐位复现官方 else 分支**（B0/现有评测不变）；
+    =(lo,hi) → tick 在 [lo·num_frames, hi·num_frames] 内计算（手册 §四："训练路径不改"）。
+    掐头 (0.25,1)、去尾 (0,0.75)、收缩 (0.125,0.875)。截断到 [1,num_frames] 保护边界；
+    num_frames·(hi−lo)<num_segments 时会出现重复帧（占比另由 truncation_repeat_fraction 统计）。
+    """
+    lo, hi = (0.0, 1.0) if sample_window is None else sample_window
+    base = num_frames * lo
+    tick = num_frames * (hi - lo) / float(num_segments)
+    frame_id = np.array([int(base + tick / 2.0 + tick * x) for x in range(num_segments)])
+    frame_id = frame_id + 1                                   # idx >= 1
+    return np.clip(frame_id, 1, num_frames)
+
+
+def truncation_repeat_fraction(video_list, num_segments, sample_window):
+    """截断窗口下会重复采样（有效帧数 < num_segments）的视频占比（手册 §四边界处理）。"""
+    if sample_window is None:
+        return 0.0
+    lo, hi = sample_window
+    n = len(video_list)
+    if n == 0:
+        return 0.0
+    span_short = sum(1 for v in video_list if int(v[1]) * (hi - lo) < num_segments)
+    return span_short / n
+
+
 class SubVideoDataset:
-    def __init__(self, sub_meta, cl, transform=transforms.ToTensor(), target_transform=identity, random_select=False, num_segments=8):
+    def __init__(self, sub_meta, cl, transform=transforms.ToTensor(), target_transform=identity, random_select=False, num_segments=8, sample_window=None):
         self.sub_meta = sub_meta
         # self.video_list = [x.strip().split(' ') for x in open(sub_meta)]
         if True:
             self.image_tmpl = 'img_{:05d}.jpg'
         else:
             self.image_tmpl = 'img_{:05d}.png'
-        self.cl = cl 
+        self.cl = cl
         self.transform = transform
         self.target_transform = target_transform
         self.random_select = random_select
         self.num_segments = num_segments
-    
+        self.sample_window = sample_window                    # None=全片(训练/官方评测); (lo,hi)=截断评测
+
     def __getitem__(self,i):
         # image_path = os.path.join( self.sub_meta[i])
         assert len(self.sub_meta[i]) == 2
         full_path = self.sub_meta[i][0]
         num_frames = self.sub_meta[i][1]
         num_segments = self.num_segments
-        if self.random_select and num_frames>8 : # random sample
+        if self.random_select and num_frames>8 : # random sample（训练路径，截断不介入）
             # frame_id = np.random.randint(num_frames)
             average_duration = num_frames // num_segments
             frame_id = np.multiply(list(range(num_segments)), average_duration)
             frame_id = frame_id + np.random.randint(average_duration, size=num_segments)
+            frame_id = frame_id + 1 # idx >= 1
         else:
-            # frame_id = num_frames//2
-            tick = num_frames / float(num_segments)
-            frame_id = np.array([int(tick / 2.0 + tick * x) for x in range(num_segments)])
-        frame_id = frame_id + 1 # idx >= 1
+            # 评测：均匀取中心（sample_window=None 复现官方；(lo,hi) 为阶段 D 截断）
+            frame_id = sample_frame_ids(num_frames, num_segments, self.sample_window)
 
         img_group = []
         for k in range(self.num_segments):
@@ -116,9 +144,9 @@ class SetDataManager:
         self.num_segments = num_segments
         self.num_workers = num_workers
 
-    def get_data_loader(self, data_file, aug): #parameters that would change on train/val set
+    def get_data_loader(self, data_file, aug, sample_window=None): #parameters that would change on train/val set
         transform = self.trans_loader.get_composed_transform(aug)
-        dataset = SetDataset( data_file , self.batch_size, transform, random_select=aug, num_segments=self.num_segments) # video
+        dataset = SetDataset( data_file , self.batch_size, transform, random_select=aug, num_segments=self.num_segments, sample_window=sample_window) # video
         sampler = EpisodicBatchSampler(len(dataset), self.n_way, self.n_eposide )
         data_loader_params = dict(batch_sampler = sampler,  num_workers = self.num_workers, pin_memory = True)
         data_loader = torch.utils.data.DataLoader(dataset, **data_loader_params)
@@ -165,7 +193,7 @@ class TransformLoader:
         return transform
 
 class SetDataset: # frames
-    def __init__(self, data_file, batch_size, transform, random_select=False, num_segments=None):
+    def __init__(self, data_file, batch_size, transform, random_select=False, num_segments=None, sample_window=None):
         # with open(data_file, 'r') as f:
             # self.meta = json.load(f)
         self.video_list = [x.strip().split(' ') for x in open(data_file)]
@@ -194,7 +222,7 @@ class SetDataset: # frames
                                   num_workers = 0, #use main thread only or may receive multiple batches
                                   pin_memory = False)        
         for cl in self.cl_list:
-            sub_dataset = SubVideoDataset(self.sub_meta[cl], cl, transform = transform ,random_select = random_select, num_segments=num_segments)
+            sub_dataset = SubVideoDataset(self.sub_meta[cl], cl, transform = transform ,random_select = random_select, num_segments=num_segments, sample_window=sample_window)
             self.sub_dataloader.append( torch.utils.data.DataLoader(sub_dataset, **sub_data_loader_params) )
 
     def __getitem__(self,i):

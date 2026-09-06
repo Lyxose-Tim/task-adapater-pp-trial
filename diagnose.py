@@ -32,7 +32,7 @@ import numpy as np
 import torch
 
 from utils import read_yaml
-from dataset import SetDataManager
+from dataset import SetDataManager, truncation_repeat_fraction
 from models import TaskAdapter
 from fsar.order import stage_permutations, make_frame_permutation
 from fsar.diagnostics import summarize_mean_ci95, ConditionAccumulator
@@ -281,6 +281,67 @@ def probe(test_loader, model, params):
     return report
 
 
+@torch.no_grad()
+def robust_eval(model, params, test_file):
+    """创新点 1 阶段 D·时序鲁棒截断评测（手册 §四；步 C 每档 ρ 同步跑）。
+
+    同一 episode 集（每窗前 setup_seed 复位→配对），四种评测帧采样窗：
+      normal 全片 / 掐头(0.25,1) / 去尾(0,0.75) / 收缩(0.125,0.875)。
+    指标：各窗标准融合 Acc（=C0 口径 vis*sem 正序）±95%CI，及 ΔAcc(相对 normal，逐 episode 配对)。
+    训练路径不改（仅评测 sample_window 生效）。边界重复采样占比一并记录。
+    """
+    model.eval()
+    windows = [("normal", None), ("head", (0.25, 1.0)), ("tail", (0.0, 0.75)), ("shrink", (0.125, 0.875))]
+    n_way, n_support, n_query = model.n_way, model.n_support, model.n_query
+    y_query = np.repeat(range(n_way), n_query)
+    seed = int(getattr(params, "seed", 916))
+    episodes = int(getattr(params, "diagnose_episodes", params.test_episode))
+    num_workers = getattr(params, "num_workers", 8)
+    video_list = [x.strip().split(" ") for x in open(test_file)]
+
+    per_ep = {}
+    for name, win in windows:
+        setup_seed(seed)                                      # 复位→四窗同 episode 流（配对）
+        dm = SetDataManager(224, n_query=n_query, num_segments=params.num_segments,
+                            n_eposide=episodes, n_way=params.test_n_way,
+                            n_support=params.n_shot, num_workers=num_workers)
+        loader = dm.get_data_loader(test_file, aug=False, sample_window=win)
+        accs = []
+        for x, label in loader:
+            x = x.cuda()
+            label_idx = list(label[:, 0].numpy())
+            _, sq, t, c, h, w = x.shape
+            z_query, z_proto, q_aft_tm = model.episode_visual(x.reshape(n_way * sq * t, c, h, w))
+            vis = model.visual_scores(z_query, z_proto)
+            sem = model.semantic_scores(q_aft_tm, label_idx, None, z_query=z_query)
+            accs.append(_accuracy(vis * sem, y_query))
+        per_ep[name] = np.asarray(accs, dtype=np.float64)
+        rf = truncation_repeat_fraction(video_list, params.num_segments, win)
+        print(f"[robust {name:>6}] Acc={per_ep[name].mean()*100:.2f} repeat_frac={rf:.3f}", flush=True)
+
+    base = per_ep["normal"]
+    report = {"mode": "robust_eval", "episodes": episodes, "seed": seed,
+              "ot": {"align_mode": getattr(model, "align_mode", "window"),
+                     "eps": float(getattr(model, "ot_eps", 0.0)),
+                     "lam": float(getattr(model, "ot_lam", 0.0)),
+                     "rho": (None if getattr(model, "ot_rho", None) is None else float(model.ot_rho))},
+              "windows": {}}
+    for name, win in windows:
+        arr = per_ep[name]
+        mean, ci = arr.mean(), 1.96 * arr.std(ddof=1) / np.sqrt(len(arr))
+        if name == "normal":
+            dmean = dci = 0.0
+        else:                                                 # 逐 episode 配对差
+            d = arr - base
+            dmean, dci = d.mean(), 1.96 * d.std(ddof=1) / np.sqrt(len(d))
+        report["windows"][name] = {
+            "acc": float(mean * 100), "ci95": float(ci * 100),
+            "dAcc_mean": float(dmean * 100), "dAcc_ci95": float(dci * 100),
+            "repeat_frac": float(truncation_repeat_fraction(video_list, params.num_segments, win))}
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return report
+
+
 if __name__ == "__main__":
     params = argparse.Namespace(**read_yaml())
     setup_seed(getattr(params, "seed", 916))
@@ -309,12 +370,17 @@ if __name__ == "__main__":
     model.load_state_dict(checkpoint)
 
     is_probe = bool(getattr(params, "ot_probe", False))              # 步B前置 λ 探针（只推理）
-    report = probe(test_loader, model, params) if is_probe else diagnose(test_loader, model, params)
+    is_robust = bool(getattr(params, "robust_eval", False))          # 阶段D 时序鲁棒截断评测
+    if is_robust:
+        report, sub = robust_eval(model, params, test_file), "robust_eval"
+    elif is_probe:
+        report, sub = probe(test_loader, model, params), "ot_probe"
+    else:
+        report, sub = diagnose(test_loader, model, params), "diagnose_3a"
 
-    sub = "ot_probe" if is_probe else "diagnose_3a"
     out_dir = os.path.join(params.work_dir, sub)
     os.makedirs(out_dir, exist_ok=True)
     stamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
-    prefix = "probe_lambda" if is_probe else "diagnose_3a"
+    prefix = {"robust_eval": "robust_eval", "ot_probe": "probe_lambda", "diagnose_3a": "diagnose_3a"}[sub]
     with open(os.path.join(out_dir, f"{prefix}_{stamp}.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
