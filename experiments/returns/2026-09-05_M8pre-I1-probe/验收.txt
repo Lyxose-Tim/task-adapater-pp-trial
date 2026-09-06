@@ -1,0 +1,38 @@
+交接包⑫ M8pre I1-probe 验收（只推理 λ 探针，不重训，2026-09-05）
+对照 experiments/handoff/2026-09-05_M8pre-I1-lambda-probe.md §4
+代码：main @ 6d742a2（ot_align 探针 + models.ot_probe + diagnose.probe）
+ckpt：步 A ε=0.01 / 0.05 / 0.1（I1A_eps001_56.32.tar / I1A_eps005_best.tar / I1A_eps01_best.tar）
+协议：seed 916、1000 ep、λ∈{0,0.1,0.3,1,3} 只前向；smoke 20ep 先通过（24s）
+墙钟：smoke 24s；全量 631 / 642 / 632 s（约 10.5min/档）；链 15:44–16:16 UTC（约 32min）
+显存：1641MiB
+
+§4 四判据（主看 ε=0.1）
+[x] band_mass 随 λ 单调↑：0.335 → 0.416 → 0.552 → 0.771 → 0.897
+[x] 中等 λ 下 π_full 不退化为 π_pos：content_l1 λ=0.3 mean=0.0356、λ=1 mean=0.0172，均 ≳1e-2
+[x] plan 随内容变化：λ=0.3/1 的 cross_class_l1=0.048/0.023、cross_query_l1=0.050/0.024，均 ≳1e-3
+[x] row_cond_entropy 随 λ 单调↓：0.998 → 0.966 → 0.813 → 0.463 → 0.191
+
+ε=0.1 四项全过 → 内容自适应（非纯几何软窗口）→ 固定 ε*=0.1 放行交接包⑩。
+
+三档 mean 摘要（H=row_cond_entropy，band，cL1=content_l1，xC/xQ，aux Acc/OS 仅辅助）
+ε=0.01
+  λ=0   H=0.877 band=0.341 cL1=0.400 xC=0.524 xQ=0.546 Acc=57.24 OS=0.000
+  λ=0.1 H=0.464 band=0.745 cL1=0.176 xC=0.242 xQ=0.251 Acc=57.28 OS=0.276
+  λ=0.3 H=0.201 band=0.892 cL1=0.026 xC=0.039 xQ=0.039 Acc=57.24 OS=0.520
+  λ=1   H=0.159 band=0.909 cL1=0.034 xC=0.047 xQ=0.041 Acc=57.22 OS=0.512
+  λ=3   H=0.000 band=1.000 cL1=0.00012 xC=0.00022 xQ=0.00020 Acc=56.86 OS=0.116  （高 λ 近 position-only）
+ε=0.05
+  λ=0   H=0.993 band=0.336 cL1=0.093 xC=0.126 xQ=0.131 Acc=56.46 OS=0.000
+  λ=0.1 H=0.890 band=0.491 cL1=0.080 xC=0.108 xQ=0.113 Acc=56.52 OS=-0.020
+  λ=0.3 H=0.623 band=0.674 cL1=0.052 xC=0.070 xQ=0.073 Acc=56.70 OS=0.276
+  λ=1   H=0.260 band=0.871 cL1=0.012 xC=0.016 xQ=0.017 Acc=56.70 OS=0.468
+  λ=3   H=0.166 band=0.905 cL1=0.0030 xC=0.0042 xQ=0.0036 Acc=56.68 OS=0.488
+ε=0.1（主判据档）
+  λ=0   H=0.998 band=0.335 cL1=0.047 xC=0.063 xQ=0.066 Acc=57.56 OS=0.000
+  λ=0.1 H=0.966 band=0.416 cL1=0.045 xC=0.060 xQ=0.063 Acc=57.68 OS=0.124
+  λ=0.3 H=0.813 band=0.552 cL1=0.036 xC=0.048 xQ=0.050 Acc=57.74 OS=0.280
+  λ=1   H=0.463 band=0.771 cL1=0.017 xC=0.023 xQ=0.024 Acc=57.60 OS=0.300
+  λ=3   H=0.191 band=0.897 cL1=0.0018 xC=0.0025 xQ=0.0025 Acc=57.60 OS=0.392
+
+注：aux Acc/OS 是 λ=0 ckpt 上只改推理 λ，非正式 λ 曲线；正式曲线为步 B 训练产物。
+λ=0 的 aux OS=0 与步 A 命题一致。JSON：returns/2026-09-05_M8pre-I1-probe/eps*/probe_lambda_*.json
