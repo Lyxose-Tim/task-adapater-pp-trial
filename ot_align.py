@@ -112,6 +112,9 @@ def ot_plan_stats(plan: Tensor) -> dict:
         "col_residual": (stage_mass - b).abs().sum(dim=-1),      # [...]
         "stage_mass_min": stage_mass.min(dim=-1).values,         # [...]
         "total_mass": total,                         # [...]
+        # 逐阶段平均质量 [K]（对所有前导维求均值）：查截断是否合理改变阶段质量分布
+        # （掐头→早阶段质量↓、去尾→晚阶段质量↓）。放 stage_mass_profile 键，与上面逐(q,c)标量分开。
+        "stage_mass_mean": stage_mass.reshape(-1, num_stages).mean(dim=0),   # [K]
     }
 
 

@@ -298,16 +298,18 @@ def robust_eval(model, params, test_file):
     episodes = int(getattr(params, "diagnose_episodes", params.test_episode))
     num_workers = getattr(params, "num_workers", 8)
     is_ot = getattr(model, "align_mode", "window") == "ot"
+    c2_perms = [p for p in stage_permutations(3) if p != (0, 1, 2)]   # 5 非恒等（normal 窗 OS）
     video_list = [x.strip().split(" ") for x in open(test_file)]
 
-    per_ep, stage_relax = {}, {}                              # 各窗：逐 episode 融合 acc / 阶段质量放松 col_residual
+    per_ep, stage_relax, stage_prof = {}, {}, {}              # 各窗：逐 ep 融合 acc / col_residual / 逐阶段质量[K]
+    os_paired = []                                            # normal 窗逐 ep (C0−C2mean) 融合
     for name, win in windows:
         setup_seed(seed)                                      # 复位→四窗同 episode 流（配对）
         dm = SetDataManager(224, n_query=n_query, num_segments=params.num_segments,
                             n_eposide=episodes, n_way=params.test_n_way,
                             n_support=params.n_shot, num_workers=num_workers)
         loader = dm.get_data_loader(test_file, aug=False, sample_window=win)
-        accs, relax = [], []
+        accs, relax, prof = [], [], []
         for x, label in loader:
             x = x.cuda()
             label_idx = list(label[:, 0].numpy())
@@ -316,14 +318,20 @@ def robust_eval(model, params, test_file):
             vis = model.visual_scores(z_query, z_proto)
             sem = model.semantic_scores(q_aft_tm, label_idx, None, z_query=z_query)
             accs.append(_accuracy(vis * sem, y_query))
-            if is_ot:                                         # 阶段质量放松 ‖stage_mass−1/K‖₁（col_residual）
+            if is_ot:                                         # 阶段质量放松 + 逐阶段质量分布
                 st = model.ot_diagnostics(q_aft_tm, label_idx, z_query)
                 relax.extend(st["col_residual"].detach().flatten().cpu().tolist())
+                prof.append(st["stage_mass_mean"].detach().cpu().numpy())     # [K]
+            if name == "normal":                              # OS 仅正常帧（顺序敏感是正常帧属性）
+                c2 = [_accuracy(vis * model.semantic_scores(q_aft_tm, label_idx, p, z_query=z_query), y_query)
+                      for p in c2_perms]
+                os_paired.append(accs[-1] - float(np.mean(c2)))
         per_ep[name] = np.asarray(accs, dtype=np.float64)
         stage_relax[name] = np.asarray(relax, dtype=np.float64) if relax else None
+        stage_prof[name] = np.stack(prof).mean(axis=0) if prof else None      # [K] 窗内均值
         rf = truncation_repeat_fraction(video_list, params.num_segments, win)
         print(f"[robust {name:>6}] Acc={per_ep[name].mean()*100:.2f} repeat_frac={rf:.3f}"
-              + (f" stage_relax={stage_relax[name].mean():.4f}" if is_ot else ""), flush=True)
+              + (f" stage_relax={stage_relax[name].mean():.4f} prof={np.round(stage_prof[name],3).tolist()}" if is_ot else ""), flush=True)
 
     base = per_ep["normal"]
     report = {"mode": "robust_eval", "episodes": episodes, "seed": seed,
@@ -344,17 +352,24 @@ def robust_eval(model, params, test_file):
             "acc": float(mean * 100), "ci95": float(ci * 100),
             "dAcc_mean": float(dmean * 100), "dAcc_ci95": float(dci * 100),
             "repeat_frac": float(truncation_repeat_fraction(video_list, params.num_segments, win)),
-            # 逐 episode 融合 acc（供跨配置 DiD_t = ΔAcc(ρ10) − ΔAcc(None) 及配对 CI；四格同 2500 episode 流对齐）
+            # 逐 episode 融合 acc（供跨配置 DiD_t = ΔAcc(ρ) − ΔAcc(None) 及配对 CI；四格同 2500 episode 流对齐）
             "per_episode_fused": [float(v) for v in arr]}
+        if name == "normal" and os_paired:                    # 顺序敏感（仅正常帧）
+            o = np.asarray(os_paired, dtype=np.float64)
+            entry["OS_mean"] = float(o.mean() * 100)
+            entry["OS_ci95"] = float(1.96 * o.std(ddof=1) / np.sqrt(len(o)) * 100)
         if is_ot and stage_relax[name] is not None:           # 阶段质量放松（验 ρ 真不平衡；平衡档≈0）
             sm = stage_relax[name]
-            entry["stage_mass_relax"] = {"mean": float(sm.mean()), "p95": float(np.percentile(sm, 95))}
+            entry["stage_mass_relax"] = {"mean": float(sm.mean()), "median": float(np.median(sm)),
+                                         "p95": float(np.percentile(sm, 95))}
+            entry["stage_mass_profile"] = [float(v) for v in stage_prof[name]]   # [K] 逐阶段均质量
         report["windows"][name] = entry
     print(json.dumps({k: v for k, v in report.items() if k != "windows"}, ensure_ascii=False))
     for nm in [w[0] for w in windows]:                        # 摘要打印不含逐 episode 长数组
         w = report["windows"][nm]
-        extra = f" stage_relax(mean/p95)={w['stage_mass_relax']['mean']:.4f}/{w['stage_mass_relax']['p95']:.4f}" if "stage_mass_relax" in w else ""
-        print(f"  {nm:>6}: acc={w['acc']:.2f}±{w['ci95']:.2f} dAcc={w['dAcc_mean']:+.2f}±{w['dAcc_ci95']:.2f}{extra}")
+        extra = f" relax(mean/p95)={w['stage_mass_relax']['mean']:.4f}/{w['stage_mass_relax']['p95']:.4f} prof={w['stage_mass_profile']}" if "stage_mass_relax" in w else ""
+        os_s = f" OS={w['OS_mean']:.2f}±{w['OS_ci95']:.2f}" if "OS_mean" in w else ""
+        print(f"  {nm:>6}: acc={w['acc']:.2f}±{w['ci95']:.2f} dAcc={w['dAcc_mean']:+.2f}±{w['dAcc_ci95']:.2f}{os_s}{extra}")
     return report
 
 
