@@ -214,6 +214,21 @@ def test_probe_stats_detached():
         assert not v.requires_grad
 
 
+def test_stage_mass_relaxation_increases_as_rho_decreases():
+    # col_residual = ‖stage_mass − 1/K‖₁：平衡(ρ=None)阶段边际硬→≈0；ρ 越小(越不平衡)越大。
+    # 支撑步C·微网格 §5 机制检验：ρ=10 (τ=ρ/(ρ+ε)≈0.99) 只产生极弱放松、数值近似平衡 OT。
+    torch.manual_seed(0)
+    F_frames = torch.randn(6, 7, 16)
+    T_c = torch.randn(3, 3, 16)
+    cr = {}
+    for rho in (None, 10.0, 1.0, 0.1):
+        _, plan, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.1, lam=0.3, rho=rho, iters=50)
+        cr[rho] = float(ot_align.ot_plan_stats(plan)["col_residual"].mean())
+    assert cr[None] < 1e-3                                   # 平衡档阶段边际硬 → ≈0
+    assert cr[10.0] < cr[1.0] < cr[0.1]                      # ρ 越小越不平衡 → 放松越大
+    assert cr[10.0] < 0.03                                   # ρ=10 仅极弱放松（近平衡，解释 dev 无 ρ 效应）
+
+
 def test_uniform_vs_mass_weight_differ_when_unbalanced():
     torch.manual_seed(2)
     F_frames = torch.randn(4, 7, 16)
