@@ -1,0 +1,32 @@
+[2026-09-06T12:00:40+00:00] I1C chain start
+[2026-09-06T12:00:40+00:00] START TA_CONFIG=config_robust_smoke.yaml
+[2026-09-06T12:01:24+00:00] DONE TA_CONFIG=config_robust_smoke.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/I1C_robust_smoke.log
+[2026-09-06T12:01:24+00:00] SMOKE_OK json=/root/rivermind-data/ta-pp/workspace_robust_smoke/robust_eval/robust_eval_2026-09-06_12-01-22.json
+[2026-09-06T12:01:24+00:00] START TA_CONFIG=config_I1C_rho10.yaml
+[2026-09-06T14:26:00+00:00] DONE TA_CONFIG=config_I1C_rho10.yaml cmd=run.py exit=0 log=/root/rivermind-data/I1C_rho10_train.log
+[2026-09-06T14:26:00+00:00] BEST rho10 /root/rivermind-data/ta-pp/workspace_I1C_rho10/taskadapter/checkpoints/somethingcmn/5way_1shot_aug/2026-09-06_12-01-30/56.78.tar
+[2026-09-06T14:26:00+00:00] START TA_CONFIG=config_3a_I1C_rho10.yaml
+[2026-09-06T14:50:09+00:00] DONE TA_CONFIG=config_3a_I1C_rho10.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/I1C_rho10_diag.log
+[2026-09-06T14:50:09+00:00] START TA_CONFIG=config_I1C_rho1.yaml
+[2026-09-06T17:14:38+00:00] DONE TA_CONFIG=config_I1C_rho1.yaml cmd=run.py exit=0 log=/root/rivermind-data/I1C_rho1_train.log
+[2026-09-06T17:14:38+00:00] BEST rho1 /root/rivermind-data/ta-pp/workspace_I1C_rho1/taskadapter/checkpoints/somethingcmn/5way_1shot_aug/2026-09-06_14-50-16/56.62.tar
+[2026-09-06T17:14:38+00:00] START TA_CONFIG=config_3a_I1C_rho1.yaml
+[2026-09-06T17:38:57+00:00] DONE TA_CONFIG=config_3a_I1C_rho1.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/I1C_rho1_diag.log
+[2026-09-06T17:38:57+00:00] START TA_CONFIG=config_I1C_rho01.yaml
+[2026-09-06T20:03:23+00:00] DONE TA_CONFIG=config_I1C_rho01.yaml cmd=run.py exit=0 log=/root/rivermind-data/I1C_rho01_train.log
+[2026-09-06T20:03:23+00:00] BEST rho01 /root/rivermind-data/ta-pp/workspace_I1C_rho01/taskadapter/checkpoints/somethingcmn/5way_1shot_aug/2026-09-06_17-39-04/56.8.tar
+[2026-09-06T20:03:23+00:00] START TA_CONFIG=config_3a_I1C_rho01.yaml
+[2026-09-06T20:27:20+00:00] DONE TA_CONFIG=config_3a_I1C_rho01.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/I1C_rho01_diag.log
+[2026-09-06T20:27:20+00:00] START TA_CONFIG=config_robust_B0.yaml
+[2026-09-06T20:52:10+00:00] DONE TA_CONFIG=config_robust_B0.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/config_robust_B0.log
+[2026-09-06T20:52:10+00:00] START TA_CONFIG=config_robust_lam0.yaml
+[2026-09-06T21:17:30+00:00] DONE TA_CONFIG=config_robust_lam0.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/config_robust_lam0.log
+[2026-09-06T21:17:30+00:00] START TA_CONFIG=config_robust_lam03.yaml
+[2026-09-06T21:42:55+00:00] DONE TA_CONFIG=config_robust_lam03.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/config_robust_lam03.log
+[2026-09-06T21:42:55+00:00] START TA_CONFIG=config_robust_rho10.yaml
+[2026-09-06T22:08:18+00:00] DONE TA_CONFIG=config_robust_rho10.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/config_robust_rho10.log
+[2026-09-06T22:08:18+00:00] START TA_CONFIG=config_robust_rho1.yaml
+[2026-09-06T22:33:41+00:00] DONE TA_CONFIG=config_robust_rho1.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/config_robust_rho1.log
+[2026-09-06T22:33:41+00:00] START TA_CONFIG=config_robust_rho01.yaml
+[2026-09-06T22:58:59+00:00] DONE TA_CONFIG=config_robust_rho01.yaml cmd=diagnose.py exit=0 log=/root/rivermind-data/config_robust_rho01.log
+[2026-09-06T22:58:59+00:00] ALL_DONE

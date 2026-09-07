@@ -1,0 +1,45 @@
+[robust normal] Acc=57.04 repeat_frac=0.000
+[robust   head] Acc=56.60 repeat_frac=0.000
+[robust   tail] Acc=56.86 repeat_frac=0.000
+[robust shrink] Acc=57.02 repeat_frac=0.000
+{
+  "mode": "robust_eval",
+  "episodes": 1000,
+  "seed": 916,
+  "ot": {
+    "align_mode": "ot",
+    "eps": 0.1,
+    "lam": 0.3,
+    "rho": null
+  },
+  "windows": {
+    "normal": {
+      "acc": 57.04000000000001,
+      "ci95": 1.2489436887937655,
+      "dAcc_mean": 0.0,
+      "dAcc_ci95": 0.0,
+      "repeat_frac": 0.0
+    },
+    "head": {
+      "acc": 56.599999999999994,
+      "ci95": 1.3248453189407128,
+      "dAcc_mean": -0.4400000000000001,
+      "dAcc_ci95": 0.7799833846437502,
+      "repeat_frac": 0.0004166666666666667
+    },
+    "tail": {
+      "acc": 56.859999999999985,
+      "ci95": 1.2867088327435465,
+      "dAcc_mean": -0.17999999999999997,
+      "dAcc_ci95": 0.8346676717606129,
+      "repeat_frac": 0.0004166666666666667
+    },
+    "shrink": {
+      "acc": 57.02,
+      "ci95": 1.3223461781147834,
+      "dAcc_mean": -0.020000000000000018,
+      "dAcc_ci95": 0.728470955696446,
+      "repeat_frac": 0.0004166666666666667
+    }
+  }
+}

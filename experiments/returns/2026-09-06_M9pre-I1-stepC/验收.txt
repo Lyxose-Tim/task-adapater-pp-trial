@@ -1,0 +1,46 @@
+交接包⑬ M9pre I1-C 验收（ε*=0.1 λ*=0.3 扫 ρ + 阶段 D 截断评测，2026-09-07）
+对照 experiments/handoff/2026-09-06_M9pre-I1-stepC-rho-robust.md §4
+代码：149f555（sample_window + robust_eval）；seed 916；λ 冻结 0.3
+墙钟：链 2026-09-06 12:00 → 22:59 UTC（约 11h）；训练 ~2h24m/档 ×3；3a ~24min/档 ×3；robust 四窗 ~25min/档 ×6
+显存：训练 14661MiB；评测 ~1.6GB
+smoke 20ep：通过（44s）
+sanity 3a：三档新 ρ 均为 true
+ckpt 云端：I1C_rho{10,1,01}_best.tar → 56.78 / 56.62 / 56.8.tar；ρ=None 复用 I1B_lam03
+
+§4 判据
+[x] 3 档 ρ 训练 10ep 完成、loss 有限无 NaN、best 软链稳定名
+[x] 3 新档 3a 出 OS、sanity true；对照 ρ=None OS=0.30
+[x] 6 档 robust 四窗 Acc+ΔAcc+repeat_frac；normal 与标准 C0/终测差 0.3–0.8pt（均在 1000ep CI±1.25 内）
+[x] 截断 ΔAcc 对照已出（见下）；手册预期"不平衡档退化最小"仅在点估计上部分成立，CI 均含 0
+[x] repeat_frac=0.00042（约 1/2400 段），可忽略，无需分层
+
+训练 Acc / 复诊 OS（对照 ρ=None = I1B_lam03 Acc 57.56 OS 0.30 C0 57.36）
+ρ      Acc            OS            复诊 C0   Val best
+None   57.56±1.30     0.30±0.31     57.36     56.76.tar（步 B，不重训）
+10     57.48±1.28     0.43±0.31     57.58     56.78.tar
+1      57.58±1.30     0.29±0.31     57.22     56.62.tar
+0.1    57.40±1.29     0.24±0.32     57.58     56.8.tar
+三档 Acc 均与 ρ=None 同邻域（差 ≤0.16pt）；OS 无单调：10 略升、1 持平、0.1 略降（CI 均含 0）。
+
+阶段 D 配对 ΔAcc vs normal（pt；CI 半宽均 ~0.8，全部含 0）
+配置              normal   dAcc_head   dAcc_tail   dAcc_shrink  |dAcc|_mean
+B0 固定窗口       56.26    -0.32       -0.20       -0.02        0.18
+OT λ=0            56.80    -0.46       +0.06       -0.14        0.22
+OT λ=0.3 ρ=None   57.04    -0.44       -0.18       -0.02        0.21
+OT λ=0.3 ρ=10     56.92    -0.32       -0.02       +0.04        0.13
+OT λ=0.3 ρ=1      56.94    -0.24       -0.20       +0.26        0.23
+OT λ=0.3 ρ=0.1    57.08    -0.54       -0.12       +0.40        0.35
+
+口径自洽：normal vs 终测/C0 差 0.3–0.8pt（robust 四次重建 loader），落在 CI 内。
+B0 normal 56.26 vs 终测 56.92；λ=0 normal 56.80 vs 57.56；ρ=None 57.04 vs C0 57.36。
+
+手册预期检验：点估计上 ρ=1 掐头退化最小（−0.24），ρ=10 三窗 |dAcc| 均值最小（0.13）；
+ρ=0.1 反而更差。固定窗口 B0 也很稳（掐头 −0.32，收缩近 0）——与"OT+ρ 应更鲁棒"不完全一致。
+**所有 ΔAcc 的 95% CI 均含 0**，1000ep 无法统计上声称某 ρ 更稳。
+
+ρ* 建议（主看截断点估计 + Acc 不劣于 None）：**ρ*=1**（Acc 57.58≥57.56，掐头 Δ 最轻）。
+备选 ρ=10（Acc 57.48，三窗最平）。ρ=0.1 不推荐。因 CI 含 0，2×2 微网格复核仍必要。
+λ 保持冻结 0.3。不得用 10000ep test 重选。
+
+图：experiments/figures/i1c_truncation_dacc.png
+产物：returns/2026-09-06_M9pre-I1-stepC/{rho10,rho1,rho01,robust,smoke}/
