@@ -1,0 +1,15 @@
+{
+  "I_Acc_pt": 0.368,
+  "I_Acc_ci95": 0.2456,
+  "I_Acc_ci95_interval": [0.1224, 0.6136],
+  "acc_diff_lam1_rho1_minus_none_pt": 0.304,
+  "acc_diff_lam03_rho1_minus_none_pt": -0.064,
+  "DiD_dAcc_pt": {
+    "head": {"mean": -0.304, "ci95": 0.3512, "interval": [-0.6552, 0.0472]},
+    "tail": {"mean": -0.136, "ci95": 0.3607, "interval": [-0.4967, 0.2247]},
+    "shrink": {"mean": -0.592, "ci95": 0.3421, "interval": [-0.9341, -0.2499]}
+  },
+  "episodes": 2500,
+  "seed": 916,
+  "formula": "I_Acc=[Acc(1,1)-Acc(1,None)]-[Acc(0.3,1)-Acc(0.3,None)]; DiD_t same form on per-episode dAcc"
+}
