@@ -373,6 +373,97 @@ def robust_eval(model, params, test_file):
     return report
 
 
+@torch.no_grad()
+def plan_dump(model, params, test_file):
+    """阶段 E·只推理导出固定 12 episode 的 OT 内部量（供离线热图；绘图脚本只读离线文件不再前向）。
+
+    align_mode=ot：每 episode 导出 cost[NQ,C,T,K]/plan/mass/D[T,K] + vis/sem/fused/pred/GT +
+      逐 query 溯源(path/frame_id/num_frames/label)。window：导出式(16) 固定窗口掩码 + 分数/pred/GT/溯源。
+    episode 由 seed+dump_episodes 固定（内容盲、非挑样）；num_workers 强制 0 以启用路径溯源。
+    """
+    import hashlib
+    import dataset as _ds
+    model.eval()
+    n_way, n_support, n_query = model.n_way, model.n_support, model.n_query
+    y_query = list(np.repeat(range(n_way), n_query))
+    seed = int(getattr(params, "seed", 916))
+    n_dump = int(getattr(params, "dump_episodes", 12))
+    is_ot = getattr(model, "align_mode", "window") == "ot"
+
+    ckpt = getattr(params, "checkpoint", "")
+    ckpt_md5 = ""
+    if ckpt and os.path.exists(ckpt):
+        h = hashlib.md5()
+        with open(ckpt, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        ckpt_md5 = h.hexdigest()
+
+    setup_seed(seed)
+    dm = SetDataManager(224, n_query=n_query, num_segments=params.num_segments,
+                        n_eposide=n_dump, n_way=params.test_n_way, n_support=params.n_shot, num_workers=0)
+    loader = dm.get_data_loader(test_file, aug=False, sample_window=None)
+
+    episodes, plans, costs, masses, window_mask, D = [], [], [], [], None, None
+    it = iter(loader)
+    for ep in range(n_dump):
+        _ds._PATH_RECORDER = []                               # num_workers=0：同步触发 __getitem__ 溯源
+        x, label = next(it)
+        served = list(_ds._PATH_RECORDER)
+        _ds._PATH_RECORDER = None
+        x = x.cuda()
+        label_idx = list(label[:, 0].numpy())
+        _, sq, t, c, h, w = x.shape
+        z_query, z_proto, q_aft_tm = model.episode_visual(x.reshape(n_way * sq * t, c, h, w))
+        vis = model.visual_scores(z_query, z_proto)
+        sem = model.semantic_scores(q_aft_tm, label_idx, None, z_query=z_query)
+        fused = vis * sem
+        pred = fused.argmax(1).cpu().numpy().tolist()
+        # 溯源 served（每类 sq 条、与 x 的 n_way 维同序）→ query 在 position n_support:
+        q_meta = []
+        for j in range(n_way):
+            block = served[j * sq:(j + 1) * sq]
+            for q in range(n_support, sq):
+                q_meta.append(block[q] if q < len(block) else None)
+        episodes.append({"episode": ep, "label_idx": [int(v) for v in label_idx],
+                         "y_query": [int(v) for v in y_query], "pred": [int(p) for p in pred],
+                         "vis": vis.detach().cpu().numpy().round(6).tolist(),
+                         "sem": sem.detach().cpu().numpy().round(6).tolist(),
+                         "fused": fused.detach().cpu().numpy().round(6).tolist(),
+                         "query_meta": q_meta})
+        if is_ot:
+            d = model.ot_dump(q_aft_tm, label_idx, z_query)
+            plans.append(d["plan"].cpu().numpy()); costs.append(d["cost"].cpu().numpy())
+            masses.append(d["mass"].cpu().numpy()); D = d["D"].cpu().numpy()
+        else:
+            Tw = q_aft_tm.shape[0]                            # 式(16)：stage i←frames{2i,2i+1,2i+2}，权重 1/9
+            window_mask = np.zeros((Tw, 3), dtype=np.float32)
+            for i in range(3):
+                for f in (2 * i, 2 * i + 1, 2 * i + 2):
+                    if f < Tw:
+                        window_mask[f, i] = 1.0 / 9
+        print(f"[plan_dump ep{ep}] GT={label_idx} pred={pred}", flush=True)
+
+    out_dir = os.path.join(params.work_dir, "plan_dump")
+    os.makedirs(out_dir, exist_ok=True)
+    stamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+    meta = {"mode": "plan_dump", "align_mode": getattr(model, "align_mode", "window"),
+            "seed": seed, "dump_episodes": n_dump,
+            "ot": {"eps": float(getattr(model, "ot_eps", 0.0)), "lam": float(getattr(model, "ot_lam", 0.0)),
+                   "rho": (None if getattr(model, "ot_rho", None) is None else float(model.ot_rho)),
+                   "iters": int(getattr(model, "ot_iters", 30)), "weight": getattr(model, "ot_weight", "mass"),
+                   "frame_source": getattr(model, "frame_source", "ca")},
+            "checkpoint": ckpt, "ckpt_md5": ckpt_md5, "episodes": episodes}
+    with open(os.path.join(out_dir, f"plan_dump_{stamp}.json"), "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2)
+    arrays = {"D": D} if is_ot else {"window_mask": window_mask}
+    if is_ot:
+        arrays.update({"plan": np.stack(plans), "cost": np.stack(costs), "mass": np.stack(masses)})  # [E,NQ,C,T,K]/[E,NQ,C,K]
+    np.savez_compressed(os.path.join(out_dir, f"plan_dump_{stamp}.npz"), **arrays)
+    print(f"plan_dump saved: {out_dir}/plan_dump_{stamp}.(json|npz)", flush=True)
+    return meta
+
+
 if __name__ == "__main__":
     params = argparse.Namespace(**read_yaml())
     setup_seed(getattr(params, "seed", 916))
@@ -400,6 +491,10 @@ if __name__ == "__main__":
     checkpoint = torch.load(params.checkpoint, map_location="cpu", weights_only=True)["state"]
     model.load_state_dict(checkpoint)
 
+    if bool(getattr(params, "plan_dump", False)):                    # 阶段E·热图溯源导出（自存文件）
+        plan_dump(model, params, test_file)
+        import sys as _sys
+        _sys.exit(0)
     is_probe = bool(getattr(params, "ot_probe", False))              # 步B前置 λ 探针（只推理）
     is_robust = bool(getattr(params, "robust_eval", False))          # 阶段D 时序鲁棒截断评测
     if is_robust:

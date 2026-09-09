@@ -214,6 +214,23 @@ def test_probe_stats_detached():
         assert not v.requires_grad
 
 
+def test_ot_stage_dump_shapes_and_cost_decomposition():
+    # 阶段 E 热图溯源：形状齐全、cost=content(∈[0,2])+λ·D、D=build_D、plan 与 ot_stage_scores 一致、全 detach
+    torch.manual_seed(0)
+    F_frames = torch.randn(4, 7, 16, requires_grad=True)
+    T_c = torch.randn(3, 3, 16, requires_grad=True)
+    d = ot_align.ot_stage_dump(F_frames, T_c, eps=0.1, lam=0.3, rho=None, iters=40)
+    assert d["score"].shape == (4, 3) and d["plan"].shape == (4, 3, 7, 3)
+    assert d["mass"].shape == (4, 3, 3) and d["cost"].shape == (4, 3, 7, 3) and d["D"].shape == (7, 3)
+    content = d["cost"] - 0.3 * d["D"][None, None]            # 剥离 λ·D 应还原内容成本 1−cos∈[0,2]
+    assert float(content.min()) >= -1e-4 and float(content.max()) <= 2.0 + 1e-4
+    assert torch.allclose(d["D"], ot_align.build_D(7, 3), atol=1e-6)
+    _, plan2, _ = ot_align.ot_stage_scores(F_frames, T_c, eps=0.1, lam=0.3, rho=None, iters=40)
+    torch.testing.assert_close(d["plan"], plan2)
+    for v in d.values():
+        assert not v.requires_grad
+
+
 def test_stage_mass_relaxation_increases_as_rho_decreases():
     # col_residual = ‖stage_mass − 1/K‖₁：平衡(ρ=None)阶段边际硬→≈0；ρ 越小(越不平衡)越大。
     # 支撑步C·微网格 §5 机制检验：ρ=10 (τ=ρ/(ρ+ε)≈0.99) 只产生极弱放松、数值近似平衡 OT。

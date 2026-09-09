@@ -83,6 +83,31 @@ def ot_stage_scores(
     return score, result.plan, result.mass
 
 
+def ot_stage_dump(
+    F_frames: Tensor,
+    T_c: Tensor,
+    eps: float,
+    lam: float = 0.0,
+    rho: Optional[float] = None,
+    iters: int = 30,
+    weight: str = "mass",
+) -> dict:
+    """阶段 E·热图溯源：返回 OT 内部量（全 detach，不入梯度）。
+
+    与 `ot_stage_scores` 同解算器；额外给出成本 Cmat 与位置先验 D。
+    Returns dict：score [NQ,C]、plan [NQ,C,T,K]、mass [NQ,C,K]、
+      cost [NQ,C,T,K]（=内容成本 + λ·D）、D [T,K]（位置先验，与 (q,c) 无关）。
+    """
+    ot = OrderAwareOptimalTransport(
+        epsilon=eps, lambda_pos=lam,
+        rho=(math.inf if rho is None else rho), iterations=iters)
+    r = ot(F_frames.float(), T_c.float())
+    S, _, _ = ot_stage_scores(F_frames, T_c, eps=eps, lam=lam, rho=rho, iters=iters, weight=weight)
+    D = build_D(F_frames.shape[1], T_c.shape[1], device=F_frames.device)
+    return {"score": S.detach(), "plan": r.plan.detach(), "mass": r.mass.detach(),
+            "cost": r.cost.detach(), "D": D.detach()}
+
+
 def ot_plan_stats(plan: Tensor) -> dict:
     """从传输计划 π 计算数值健康统计（**全程 detach，不入梯度/不改分数/不占计算图**）。
 
@@ -201,7 +226,7 @@ def plan_pairwise_l1(plan: Tensor, dim: int) -> Tensor:
 
 
 __all__ = [
-    "build_D", "sinkhorn_log", "ot_stage_scores", "ot_plan_stats",
+    "build_D", "sinkhorn_log", "ot_stage_scores", "ot_plan_stats", "ot_stage_dump",
     "ot_position_only_plan", "row_conditional_entropy", "band_mass",
     "plan_l1", "plan_pairwise_l1",
 ]

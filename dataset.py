@@ -13,6 +13,10 @@ def identity(x):
     return x
 transformtypedict=dict(Brightness=ImageEnhance.Brightness, Contrast=ImageEnhance.Contrast, Sharpness=ImageEnhance.Sharpness, Color=ImageEnhance.Color)
 
+# 阶段 E·plan_dump 只推理溯源：置为 list 时 SubVideoDataset 按服务顺序追加 (path, frame_id, num_frames, label)。
+# 仅供 num_workers=0 的离线导出使用（worker 进程内追加不回传主进程）；默认 None＝训练/评测零影响。
+_PATH_RECORDER = None
+
 
 class VideoDataset:
     def __init__(self, data_file, image_size, train_aug=False, num_segments=None):
@@ -116,6 +120,10 @@ class SubVideoDataset:
         else:
             # 评测：均匀取中心（sample_window=None 复现官方；(lo,hi) 为阶段 D 截断）
             frame_id = sample_frame_ids(num_frames, num_segments, self.sample_window)
+
+        if _PATH_RECORDER is not None:                        # 阶段 E 溯源（num_workers=0）
+            _PATH_RECORDER.append({"path": full_path, "frame_id": [int(f) for f in frame_id],
+                                   "num_frames": int(num_frames), "label": int(self.cl)})
 
         img_group = []
         for k in range(self.num_segments):

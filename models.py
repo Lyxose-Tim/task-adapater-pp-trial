@@ -200,6 +200,16 @@ class TaskAdapter(MetaTemplate):
             out[lam] = entry
         return out
 
+    def ot_dump(self, q_aft_tm, label_idx, z_query=None):
+        # 阶段 E·热图溯源（只推理、detach）：返回 OT 内部量供离线绘图（不改打分/梯度）。
+        # score[NQ,C]/plan[NQ,C,T,K]/mass[NQ,C,K]/cost[NQ,C,T,K]/D[T,K]。正序文本。
+        import ot_align
+        enh = self._encode_stage_text(label_idx, None)
+        F_frames, T_c = self._ot_frames_and_text(enh, q_aft_tm, z_query)
+        return ot_align.ot_stage_dump(
+            F_frames, T_c, eps=self.ot_eps, lam=self.ot_lam, rho=self.ot_rho,
+            iters=self.ot_iters, weight=self.ot_weight)
+
     def semantic_scores(self, q_aft_tm, label_idx, permutation=None, z_query=None):
         # 语义分支打分。align_mode=window 走式(16) 固定窗口（逐位=B0）；
         # =ot 走创新点 1 的 OT 软阶段分配。`permutation` 仅重排每类子动作顺序
