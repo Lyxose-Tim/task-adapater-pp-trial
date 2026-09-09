@@ -1,0 +1,2562 @@
+{
+  "mode": "plan_dump",
+  "align_mode": "window",
+  "seed": 916,
+  "dump_episodes": 12,
+  "ot": {
+    "eps": 0.05,
+    "lam": 0.0,
+    "rho": null,
+    "iters": 30,
+    "weight": "mass",
+    "frame_source": "ca"
+  },
+  "checkpoint": "dataset/checkpoints/b0_seed916_56.32.tar",
+  "ckpt_md5": "cb9977f2e888237596816b50db9abee7",
+  "episodes": [
+    {
+      "episode": 0,
+      "label_idx": [
+        96,
+        82,
+        84,
+        79,
+        94
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        1,
+        2,
+        4,
+        3
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/171115",
+          "frame_id": [
+            3,
+            7,
+            12,
+            16,
+            21,
+            25,
+            30,
+            34
+          ],
+          "num_frames": 36,
+          "label": 96
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/84519",
+          "frame_id": [
+            4,
+            10,
+            16,
+            22,
+            29,
+            35,
+            41,
+            47
+          ],
+          "num_frames": 50,
+          "label": 82
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/58748",
+          "frame_id": [
+            2,
+            5,
+            8,
+            11,
+            13,
+            16,
+            19,
+            22
+          ],
+          "num_frames": 23,
+          "label": 84
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/17407",
+          "frame_id": [
+            3,
+            8,
+            12,
+            17,
+            22,
+            27,
+            31,
+            36
+          ],
+          "num_frames": 38,
+          "label": 79
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/133149",
+          "frame_id": [
+            5,
+            13,
+            21,
+            29,
+            38,
+            46,
+            54,
+            62
+          ],
+          "num_frames": 66,
+          "label": 94
+        }
+      ]
+    },
+    {
+      "episode": 1,
+      "label_idx": [
+        92,
+        96,
+        77,
+        78,
+        86
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        1,
+        4,
+        0,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/119959",
+          "frame_id": [
+            2,
+            6,
+            10,
+            14,
+            18,
+            22,
+            26,
+            30
+          ],
+          "num_frames": 31,
+          "label": 92
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/144763",
+          "frame_id": [
+            3,
+            9,
+            15,
+            21,
+            27,
+            33,
+            39,
+            45
+          ],
+          "num_frames": 47,
+          "label": 96
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/128162",
+          "frame_id": [
+            3,
+            9,
+            14,
+            19,
+            25,
+            30,
+            35,
+            41
+          ],
+          "num_frames": 43,
+          "label": 77
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/70064",
+          "frame_id": [
+            4,
+            12,
+            20,
+            28,
+            35,
+            43,
+            51,
+            59
+          ],
+          "num_frames": 62,
+          "label": 78
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/88967",
+          "frame_id": [
+            3,
+            9,
+            14,
+            20,
+            25,
+            31,
+            36,
+            42
+          ],
+          "num_frames": 44,
+          "label": 86
+        }
+      ]
+    },
+    {
+      "episode": 2,
+      "label_idx": [
+        93,
+        77,
+        99,
+        84,
+        95
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        3,
+        2,
+        2,
+        3,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          0.06494140625
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/74297",
+          "frame_id": [
+            2,
+            6,
+            10,
+            14,
+            17,
+            21,
+            25,
+            29
+          ],
+          "num_frames": 30,
+          "label": 93
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/208095",
+          "frame_id": [
+            2,
+            6,
+            9,
+            13,
+            16,
+            20,
+            23,
+            27
+          ],
+          "num_frames": 28,
+          "label": 77
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/63563",
+          "frame_id": [
+            4,
+            11,
+            18,
+            25,
+            31,
+            38,
+            45,
+            52
+          ],
+          "num_frames": 55,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/138210",
+          "frame_id": [
+            2,
+            5,
+            8,
+            11,
+            13,
+            16,
+            19,
+            22
+          ],
+          "num_frames": 23,
+          "label": 84
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/159529",
+          "frame_id": [
+            2,
+            5,
+            8,
+            11,
+            13,
+            16,
+            19,
+            22
+          ],
+          "num_frames": 23,
+          "label": 95
+        }
+      ]
+    },
+    {
+      "episode": 3,
+      "label_idx": [
+        88,
+        87,
+        99,
+        82,
+        79
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        1,
+        2,
+        3,
+        3
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/119184",
+          "frame_id": [
+            4,
+            12,
+            20,
+            28,
+            35,
+            43,
+            51,
+            59
+          ],
+          "num_frames": 62,
+          "label": 88
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/27466",
+          "frame_id": [
+            2,
+            6,
+            10,
+            14,
+            17,
+            21,
+            25,
+            29
+          ],
+          "num_frames": 30,
+          "label": 87
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/176082",
+          "frame_id": [
+            4,
+            12,
+            20,
+            28,
+            36,
+            44,
+            52,
+            60
+          ],
+          "num_frames": 63,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/132353",
+          "frame_id": [
+            3,
+            8,
+            13,
+            18,
+            24,
+            29,
+            34,
+            39
+          ],
+          "num_frames": 41,
+          "label": 82
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/158896",
+          "frame_id": [
+            4,
+            10,
+            17,
+            24,
+            30,
+            37,
+            44,
+            50
+          ],
+          "num_frames": 53,
+          "label": 79
+        }
+      ]
+    },
+    {
+      "episode": 4,
+      "label_idx": [
+        99,
+        80,
+        94,
+        77,
+        82
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        0,
+        1,
+        2,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          0.050079345703125,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/84531",
+          "frame_id": [
+            5,
+            14,
+            23,
+            32,
+            41,
+            50,
+            59,
+            68
+          ],
+          "num_frames": 72,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/160290",
+          "frame_id": [
+            5,
+            13,
+            22,
+            31,
+            39,
+            48,
+            57,
+            65
+          ],
+          "num_frames": 69,
+          "label": 80
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/114917",
+          "frame_id": [
+            3,
+            9,
+            14,
+            20,
+            25,
+            31,
+            36,
+            42
+          ],
+          "num_frames": 44,
+          "label": 94
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/10410",
+          "frame_id": [
+            3,
+            9,
+            15,
+            21,
+            27,
+            33,
+            39,
+            45
+          ],
+          "num_frames": 47,
+          "label": 77
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/166706",
+          "frame_id": [
+            5,
+            13,
+            21,
+            29,
+            38,
+            46,
+            54,
+            62
+          ],
+          "num_frames": 66,
+          "label": 82
+        }
+      ]
+    },
+    {
+      "episode": 5,
+      "label_idx": [
+        92,
+        81,
+        99,
+        80,
+        84
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        2,
+        1,
+        0,
+        2,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          0.0650634765625,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/101555",
+          "frame_id": [
+            4,
+            12,
+            19,
+            26,
+            34,
+            41,
+            48,
+            56
+          ],
+          "num_frames": 59,
+          "label": 92
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/62088",
+          "frame_id": [
+            2,
+            6,
+            10,
+            14,
+            18,
+            22,
+            26,
+            30
+          ],
+          "num_frames": 31,
+          "label": 81
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/61649",
+          "frame_id": [
+            5,
+            13,
+            21,
+            29,
+            38,
+            46,
+            54,
+            62
+          ],
+          "num_frames": 66,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/121027",
+          "frame_id": [
+            5,
+            13,
+            21,
+            29,
+            37,
+            45,
+            53,
+            61
+          ],
+          "num_frames": 65,
+          "label": 80
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/172014",
+          "frame_id": [
+            4,
+            10,
+            16,
+            22,
+            28,
+            34,
+            40,
+            46
+          ],
+          "num_frames": 48,
+          "label": 84
+        }
+      ]
+    },
+    {
+      "episode": 6,
+      "label_idx": [
+        99,
+        90,
+        85,
+        77,
+        88
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/189739",
+          "frame_id": [
+            3,
+            9,
+            15,
+            21,
+            26,
+            32,
+            38,
+            44
+          ],
+          "num_frames": 46,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/179187",
+          "frame_id": [
+            4,
+            11,
+            19,
+            26,
+            33,
+            40,
+            48,
+            55
+          ],
+          "num_frames": 58,
+          "label": 90
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/113625",
+          "frame_id": [
+            3,
+            9,
+            15,
+            20,
+            26,
+            31,
+            37,
+            43
+          ],
+          "num_frames": 45,
+          "label": 85
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/151746",
+          "frame_id": [
+            4,
+            11,
+            19,
+            26,
+            33,
+            40,
+            48,
+            55
+          ],
+          "num_frames": 58,
+          "label": 77
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/58371",
+          "frame_id": [
+            5,
+            13,
+            21,
+            29,
+            37,
+            45,
+            53,
+            61
+          ],
+          "num_frames": 65,
+          "label": 88
+        }
+      ]
+    },
+    {
+      "episode": 7,
+      "label_idx": [
+        80,
+        94,
+        82,
+        98,
+        96
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        3,
+        1,
+        2,
+        4,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          0.06536865234375
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          0.058929443359375,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          0.06427001953125,
+          0.05322265625,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/70913",
+          "frame_id": [
+            3,
+            9,
+            15,
+            21,
+            26,
+            32,
+            38,
+            44
+          ],
+          "num_frames": 46,
+          "label": 80
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/142583",
+          "frame_id": [
+            4,
+            11,
+            18,
+            25,
+            31,
+            38,
+            45,
+            52
+          ],
+          "num_frames": 55,
+          "label": 94
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/165039",
+          "frame_id": [
+            3,
+            9,
+            14,
+            20,
+            25,
+            31,
+            36,
+            42
+          ],
+          "num_frames": 44,
+          "label": 82
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/83332",
+          "frame_id": [
+            3,
+            8,
+            13,
+            18,
+            24,
+            29,
+            34,
+            39
+          ],
+          "num_frames": 41,
+          "label": 98
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/30998",
+          "frame_id": [
+            2,
+            4,
+            7,
+            9,
+            12,
+            14,
+            17,
+            19
+          ],
+          "num_frames": 20,
+          "label": 96
+        }
+      ]
+    },
+    {
+      "episode": 8,
+      "label_idx": [
+        85,
+        99,
+        93,
+        96,
+        94
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        0,
+        2,
+        3,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/139086",
+          "frame_id": [
+            4,
+            12,
+            20,
+            28,
+            35,
+            43,
+            51,
+            59
+          ],
+          "num_frames": 62,
+          "label": 85
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/52069",
+          "frame_id": [
+            5,
+            13,
+            22,
+            31,
+            39,
+            48,
+            57,
+            65
+          ],
+          "num_frames": 69,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/173590",
+          "frame_id": [
+            3,
+            7,
+            12,
+            16,
+            21,
+            25,
+            30,
+            34
+          ],
+          "num_frames": 36,
+          "label": 93
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/133108",
+          "frame_id": [
+            3,
+            8,
+            13,
+            18,
+            22,
+            27,
+            32,
+            37
+          ],
+          "num_frames": 39,
+          "label": 96
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/135409",
+          "frame_id": [
+            4,
+            12,
+            20,
+            27,
+            35,
+            42,
+            50,
+            58
+          ],
+          "num_frames": 61,
+          "label": 94
+        }
+      ]
+    },
+    {
+      "episode": 9,
+      "label_idx": [
+        89,
+        90,
+        91,
+        93,
+        92
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        2,
+        4,
+        4,
+        3,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/50256",
+          "frame_id": [
+            4,
+            10,
+            17,
+            23,
+            30,
+            36,
+            43,
+            49
+          ],
+          "num_frames": 52,
+          "label": 89
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/125715",
+          "frame_id": [
+            4,
+            10,
+            16,
+            22,
+            28,
+            34,
+            40,
+            46
+          ],
+          "num_frames": 49,
+          "label": 90
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/102388",
+          "frame_id": [
+            3,
+            7,
+            11,
+            15,
+            19,
+            23,
+            27,
+            31
+          ],
+          "num_frames": 32,
+          "label": 91
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/105906",
+          "frame_id": [
+            4,
+            10,
+            16,
+            22,
+            29,
+            35,
+            41,
+            47
+          ],
+          "num_frames": 50,
+          "label": 93
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/108438",
+          "frame_id": [
+            3,
+            7,
+            11,
+            16,
+            20,
+            25,
+            29,
+            33
+          ],
+          "num_frames": 35,
+          "label": 92
+        }
+      ]
+    },
+    {
+      "episode": 10,
+      "label_idx": [
+        97,
+        78,
+        95,
+        99,
+        96
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        0,
+        3,
+        0,
+        4
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/49118",
+          "frame_id": [
+            2,
+            6,
+            10,
+            13,
+            17,
+            20,
+            24,
+            28
+          ],
+          "num_frames": 29,
+          "label": 97
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/117612",
+          "frame_id": [
+            3,
+            9,
+            15,
+            20,
+            26,
+            31,
+            37,
+            43
+          ],
+          "num_frames": 45,
+          "label": 78
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/5179",
+          "frame_id": [
+            3,
+            8,
+            14,
+            19,
+            24,
+            29,
+            35,
+            40
+          ],
+          "num_frames": 42,
+          "label": 95
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/30430",
+          "frame_id": [
+            4,
+            10,
+            16,
+            22,
+            29,
+            35,
+            41,
+            47
+          ],
+          "num_frames": 50,
+          "label": 99
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/101666",
+          "frame_id": [
+            4,
+            11,
+            19,
+            26,
+            33,
+            40,
+            48,
+            55
+          ],
+          "num_frames": 58,
+          "label": 96
+        }
+      ]
+    },
+    {
+      "episode": 11,
+      "label_idx": [
+        86,
+        93,
+        80,
+        78,
+        97
+      ],
+      "y_query": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "pred": [
+        0,
+        1,
+        2,
+        4,
+        1
+      ],
+      "vis": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "sem": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "fused": [
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          0.059478759765625,
+          Infinity,
+          0.058990478515625,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ],
+        [
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity,
+          Infinity
+        ]
+      ],
+      "query_meta": [
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/202463",
+          "frame_id": [
+            4,
+            11,
+            18,
+            25,
+            33,
+            40,
+            47,
+            54
+          ],
+          "num_frames": 57,
+          "label": 86
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/160594",
+          "frame_id": [
+            3,
+            9,
+            14,
+            19,
+            25,
+            30,
+            35,
+            41
+          ],
+          "num_frames": 43,
+          "label": 93
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/114503",
+          "frame_id": [
+            4,
+            11,
+            19,
+            26,
+            33,
+            40,
+            48,
+            55
+          ],
+          "num_frames": 58,
+          "label": 80
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/177674",
+          "frame_id": [
+            3,
+            8,
+            12,
+            17,
+            22,
+            27,
+            31,
+            36
+          ],
+          "num_frames": 38,
+          "label": 78
+        },
+        {
+          "path": "/root/rivermind-data/ta-pp/data/full/frames/182343",
+          "frame_id": [
+            3,
+            7,
+            12,
+            17,
+            21,
+            26,
+            31,
+            35
+          ],
+          "num_frames": 37,
+          "label": 97
+        }
+      ]
+    }
+  ]
+}

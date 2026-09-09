@@ -1,0 +1,13 @@
+[plan_dump ep0] GT=[96, 82, 84, 79, 94] pred=[0, 1, 2, 4, 3]
+[plan_dump ep1] GT=[92, 96, 77, 78, 86] pred=[0, 1, 4, 0, 4]
+[plan_dump ep2] GT=[93, 77, 99, 84, 95] pred=[3, 2, 2, 3, 4]
+[plan_dump ep3] GT=[88, 87, 99, 82, 79] pred=[0, 1, 2, 3, 3]
+[plan_dump ep4] GT=[99, 80, 94, 77, 82] pred=[0, 0, 1, 2, 4]
+[plan_dump ep5] GT=[92, 81, 99, 80, 84] pred=[2, 1, 0, 2, 4]
+[plan_dump ep6] GT=[99, 90, 85, 77, 88] pred=[0, 0, 0, 0, 2]
+[plan_dump ep7] GT=[80, 94, 82, 98, 96] pred=[3, 1, 2, 4, 4]
+[plan_dump ep8] GT=[85, 99, 93, 96, 94] pred=[0, 0, 2, 3, 4]
+[plan_dump ep9] GT=[89, 90, 91, 93, 92] pred=[2, 4, 4, 3, 4]
+[plan_dump ep10] GT=[97, 78, 95, 99, 96] pred=[0, 0, 3, 0, 4]
+[plan_dump ep11] GT=[86, 93, 80, 78, 97] pred=[0, 1, 2, 4, 1]
+plan_dump saved: ./workspace_E_dump_B0/plan_dump/plan_dump_2026-09-09_12-54-48.(json|npz)

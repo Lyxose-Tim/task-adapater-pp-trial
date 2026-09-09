@@ -425,11 +425,12 @@ def plan_dump(model, params, test_file):
             block = served[j * sq:(j + 1) * sq]
             for q in range(n_support, sq):
                 q_meta.append(block[q] if q < len(block) else None)
+        def _score_list(t):
+            # fp16 ndarray.round(n) 会乘 10^n 溢出成 Inf；热图不读分数，但交接包要求 vis/sem/fused 有限
+            return np.asarray(t.detach().float().cpu().numpy(), dtype=np.float64).round(6).tolist()
         episodes.append({"episode": ep, "label_idx": [int(v) for v in label_idx],
                          "y_query": [int(v) for v in y_query], "pred": [int(p) for p in pred],
-                         "vis": vis.detach().cpu().numpy().round(6).tolist(),
-                         "sem": sem.detach().cpu().numpy().round(6).tolist(),
-                         "fused": fused.detach().cpu().numpy().round(6).tolist(),
+                         "vis": _score_list(vis), "sem": _score_list(sem), "fused": _score_list(fused),
                          "query_meta": q_meta})
         if is_ot:
             d = model.ot_dump(q_aft_tm, label_idx, z_query)

@@ -1,0 +1,37 @@
+交接包⑯ E-I1-plan-dump 验收（对照 handoff §3–§6，2026-09-09；合规复核同日重做偏离项）
+代码：diagnose.py 序列化修复后的 dump（π 与首轮 npz 逐位相同，maxabs=0）；主线 tag innov1-final 不改训练。
+seed 916 同一 12 episode；首档 lam03 通路通过后再跑其余四档。墙钟：首轮 <15min；重导 12:51–12:59 UTC，overflow 次数=0。
+
+对照 handoff §4 成功判据
+[x] 五档 json+npz，各 12 episode，GT/pred/vis/sem/fused/query_meta 齐全
+[x] 重导后 vis/sem/fused **有限**（首轮 JSON 因 fp16 ndarray.round(6) 写成 Inf，已修 diagnose.py 为 float64 再 round）
+[x] OT npz：plan/cost [12,5,5,7,3]、mass [12,5,5,3]、D [7,3]（T=7 = frame_source=ca / q_aft_tm，方案 §1.1 Option A）
+    B0 npz：window_mask [7,3]
+[x] query_meta path/frame_id(8)/num_frames/label 非空；五档 ep0 同一 path …/frames/171115
+[x] ckpt_md5：B0 cb9977f2 / λ0 7d332c2a / λ0.3 7555e3f1 / s917 28562dde / ρ1 be46179a
+
+对照 handoff §4 本地绘图
+[x] 主图 A 固定窗口 → B λ=0 → C λ=0.3（`i1e_heatmap_ABC.png`）
+[x] ρ=1 附录 stage-mass（relaxation L1 vs 1/K = 0.011 ≫ 平衡档 ~0；终表已证不超过主线）
+[x] λ=0 非全均匀（12ep 跨类 plan L1 0.00304 > λ=0.3 的 0.00231）；λ=0.3 更带状（GT 类 band 0.335→0.554）且两 query 形状不同
+[x] seed917 同 12 流 band 0.552，与 916 同机制；主图用 916
+[x] 冻结 i1b_lambda_curves / i1c_truncation_dacc / i1_m9_final；图注见 `图注.md`；一页结论已写
+[x] 横轴帧缩略图：从云端按 query_meta 抽 JPEG（本地无 data/full/frames，handoff 写「本地已有帧」与仓库不符，改为拉所绘 query 的帧）
+
+pretend / 内容盲扩 episode（handoff：「若前 12 的 pretend 类 <3，扩索引后重导」）
+CMN 测试 24 类 = id 76–99；pretend 词表 11 类 ∩ 测试集 = **{78}**。
+扩 dump_episodes 只能重复抽到同一类，凑不满 3 个 **类**（不改划分、不挑样）。
+本 12 流已含 78（ep1/10/11）。**保持 12，不重导更多 episode。**
+展示用冻结流中第一个含 pretend 的 episode（ep1 q3），不是挑「最好看」的热图。
+（首轮主图误用 ep8、无缩略图；带状 0.72/0.92 是该 episode 的数，已作废。12ep 均值 0.335/0.554 与探针 λ=0/0.3 一致。）
+
+未偏离 / 不重做
+- 五档同一 seed916 episode 流、只推理、未改训练逻辑
+- 主图结构按交接包 A/B/C（手册「λ=0 / λ* / λ*+ρ*」被用户 spec 与 handoff 覆盖，ρ=1 入附录）
+- Fig.10 分时刻曲线：handoff 要求冻结已有曲线，不新训
+
+产物
+- returns/2026-09-09_E-I1-plan-dump/{B0,lam0,lam03,lam03_s917,lam03_rho1}/（含 11-* 首轮 Inf 分 + 12-* 有限分）
+- logs/（含 chain.log 与 chain_redo.log）；configs/ 五份 yaml 快照；thumbs/ 绘图用 JPEG
+- figures/i1e_heatmap_{ABC,twoquery,seed917}.png、i1e_rho1_stagemass.png
+- 图注.md、一页结论.md

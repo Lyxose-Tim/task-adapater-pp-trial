@@ -1,5 +1,5 @@
 # PROGRESS — 跨会话进度
-最后更新：2026-09-09（创新点 1 数值收官已 tag `innov1-final`；阶段 E 交接包⑯已发：只推理 plan_dump 导出 12 固定 episode 的 π 内部量供离线热图，代码 `39cd82f`）
+最后更新：2026-09-09（⑯ 合规复核：修 vis Inf、补缩略图/图注、主图改用 pretend episode。创新点 1 **完全收官**）
 
 ## 本会话进展（2026-08-31，实施）
 - **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
@@ -51,12 +51,12 @@
 | R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
 
 ## 云端待执行（交接包队列）
-- **交接包⑯ E-I1-plan-dump（已发，待 Cursor 执行）**：`handoff/2026-09-09_E-I1-plan-dump.md`，代码 `39cd82f`。只推理导出 12 固定 episode（seed916，内容盲）的 OT 内部量（cost/plan/mass/D + vis/sem/fused/pred/GT + 逐 query 溯源）；五档 B0/λ0/λ0.3/λ0.3-seed917/λ0.3-ρ1。绘图与热图验收本地离线做。<1h。GPU 空闲。
-- 已收并登账：⑮ M9-I1-final（终表 ③ 57.34/OS0.27）、⑭ M9pre-I1-microgrid、⑬ M9pre-I1-stepC、⑩ M8-I1B（λ*=0.3）、⑫ M8pre-I1-probe、⑪ M7-I1A-recheck、⑨ M7-I1A、⑧ M6-3b、⑦ M5-3b、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
+- **队列空**。⑯ 已收并登账。**创新点 1 完全收官**（终表 + 机制图）。下一步：**创新点 2**（复用 ot_align）。
+- 已收并登账：⑯ E-I1-plan-dump、⑮ M9-I1-final（终表 ③ 57.34/OS0.27）、⑭ M9pre-I1-microgrid、⑬ M9pre-I1-stepC、⑩ M8-I1B（λ*=0.3）、⑫ M8pre-I1-probe、⑪ M7-I1A-recheck、⑨ M7-I1A、⑧ M6-3b、⑦ M5-3b、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
 - **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30221**。GPU **空闲**。
 
 ## 已回收待登账
--（空；⑮ 已入 ledger。创新点 1 收官）
+-（空；⑯ 已入 ledger。创新点 1 完全收官）
 
 ## smoke 记录
 - 2026-08-29 **云端 smoke-官方管线-mini：通过**。RTX 3090，conda torch 2.1.0+cu121，CLIP JIT ViT-B-16.pt（OpenAI 官方 335MB）。Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%；Val 68% 保存 68.0.tar；终测 10 ep = 70.00%±11.43%。数值不作参考、不进 ledger。随后已启动全量 B0。
@@ -81,7 +81,7 @@
 6. **✅ 交接包⑬已收包**：ρ∈{None,10,1,0.1} Acc 57.56/57.48/**57.58**/57.40；OS 0.30/0.43/0.29/0.24。截断 ΔAcc 点估计 **ρ=1 掐头最轻（−0.24）**、ρ=10 三窗最平；ρ=0.1 更差；B0 固定窗口也稳。全部 ΔAcc CI 含 0。图 `experiments/figures/i1c_truncation_dacc.png`。产物 `returns/2026-09-06_M9pre-I1-stepC/`。建议 **ρ*=1**。
 7. **✅ 微网格交接包⑭已收包**：产物 `returns/2026-09-07_M9pre-I1-microgrid/`。I_Acc=+0.37±0.25（CI 不含 0）；(1,1) 终测 56.46 / robust 56.54，仍低于 (0.3,None) 57.07；shrink DiD=−0.59 不含 0。图 `experiments/figures/i1mg_microgrid.png`。
 8. **✅ 用户冻结主线 ε0.1/λ0.3/ρ=None + M9 交接包⑮已收包**：产物 `returns/2026-09-08_M9-I1-final/`。终表 ①56.78/OS0.21 ②57.04/OS0.00 ③**57.34/OS0.27** ④57.29/OS0.22；③ vs B0 配对 +0.56pt（CI 不含 0）；④ 不超过 ③。seed917 终测 60.46 / C0 59.29。图 `experiments/figures/i1_m9_final.png`。**创新点 1 收官**。
-9. **✅ 阶段 E 发包（本会话）**：数值收官已 tag `innov1-final`；plan_dump 只推理导出 12 固定 episode π 内部量（代码 `39cd82f`，164/164）；交接包⑯发 Cursor。收包后本地绘三组主图（A 固定窗口→B 内容 OT→C 内容+顺序）+ρ1 附录 + 冻结 λ 曲线/截断图/图注/一页结论 → 创新点 1 **完全收官**。
+9. **✅ 阶段 E 交接包⑯已收包并合规复核**：产物 `returns/2026-09-09_E-I1-plan-dump/`。五档 12ep 对齐；测试集 pretend 仅 1 类故未扩 episode。偏离已重做：JSON 分数改 float64 重导（π 与首轮逐位相同）、主图改 ep1 pretend + 横轴缩略图、补图注与 config 快照。12ep band 0.335→0.554。图 `i1e_heatmap_ABC.png`。**创新点 1 完全收官**。
 10. **待启**：创新点 2（复用 ot_align）；创新点 2/4a 手册已入库；GPT-4 语料生成+纯文本过滤可并行（不改创新点 1 训练路径）。不用 10000ep 重选 λ/ρ。
 
 ## 决策日志
@@ -110,3 +110,4 @@
 - 2026-09-08（用户拍板 冻结主线+M9 发包，实施）：**最终主线冻结 ε=0.1 / λ=0.3 / ρ=None / iters=30**（平衡 OT + 顺序先验）。用户理由：I_Acc 显著仅证 λ×ρ 有交互、非证不平衡全局更优；ρ=1 在 λ=0.3 上 Acc 仅 −0.06；(1,1) 补偿后仍低于 (0.3,None) 0.53pt；截断无一致收益且 shrink 交互显著负；stage_mass 生效≠主任务受益。**M9 终表 4 行 @10000ep**：①B0 ②ε0.1λ0 ③ε0.1λ0.3ρNone(**最终主方法**) ④ε0.1λ0.3ρ1(不平衡边际**直接负/中性消融**，如实保留、不据终表重选)。(0.3,1) 复用 I1C_rho1 只补评测；**(1,1) 不上 10000ep**；完整 2×2 微网格/I_Acc/DiD/stage_mass → **附录/机制分析**，结论表述："ρ 可部分补偿过强 λ，但未超过最优平衡 OT、亦无一致截断鲁棒收益"。主线 (0.3,None) **追加 seed917 第二训练**。**创新点 1 标题**由"不平衡 OT"**收缩为"语义条件、顺序正则化的软阶段分配"**，不平衡作扩展消融。实施：M9 六配置（config_M9_row{1,2,3,4}+seed917_train+row3_seed917）@ `0159bf8`（无新代码，diagnose 诊断路径 M4 已验证、163/163）；收官交接包⑮发 Cursor。
 - 2026-09-09（收包⑮，实施/登账；Claude 从 per_episode_c0_fused 独立重算配对 ΔAcc）：**创新点 1 收官**。Cursor 预填 ledger(6 行)/PROGRESS + summary.json，我从五行 10000ep 同 seed916 流 `per_episode_c0_fused` **独立重算逐位吻合**：终表 ①B0 56.78±0.40/OS0.21 ②OTλ0 57.04±0.41/OS≈0(−0.0008±0.0016) ③OTλ0.3(最终) **57.34±0.41/OS0.27±0.10** ④OTλ0.3ρ1 57.29±0.41/OS0.22；配对 ΔAcc(③−①)=**+0.562±0.271 CI[+0.29,+0.83] 不含0**、(②−①)=+0.266±0.248 CI[+0.02,+0.51] 刚不含0、(④−③)=−0.046±0.094 **含0**（ρ=1 不超过主线）；全 sanity=true。seed917：C0=59.29±0.41（终测 60.46）——高种子，③ 双种子 C0 差 +1.95pt（seed 方差大）。**收官诚实框定**（须入论文）：① OS 价值是**可控性**——② 平衡 OT 把 OS 精确压到 0（10000ep 证 §1.2 命题），③ λ=0.3 把 OS 调回 0.27（≈B0 0.21、CI 重叠，**非"比 B0 更高"**），全程 Acc 不降反升；② Acc 主张基于**同 seed916 配对**（+0.56pt CI 不含0），但 seed 方差 ~2pt、③ 仅 2 seed，故绝对 Acc 对 seed 敏感、改进主张靠配对内检验而非多种子均值；③ ②vs① 的 +0.27 仅"刚不含0"（边际）。**创新点 1 完整叙事成立**：语义条件+顺序正则化软阶段分配，相对固定窗口精度中性偏升且顺序可控；不平衡 ρ 无额外收益（附录）。下一步：阶段 E（π 热图）+ 创新点 2。
 - 2026-09-09（用户拍板 先做阶段 E，实施）：用户选阶段 E（π 热图）优先于创新点 2。数值收官状态打 tag **`innov1-final`**（e8abddc，ε0.1/λ0.3/ρNone/iters30，训练逻辑不再改）。实施只推理 **plan_dump**（`ot_align.ot_stage_dump` 导 cost/plan/mass/D、`models.ot_dump`、`dataset._PATH_RECORDER` num_workers=0 溯源、`diagnose.plan_dump` 固定 12 episode 内容盲导出 + window 档式(16) 掩码；164/164）@ `39cd82f`。交接包⑯发 Cursor 跑五档 dump（B0/λ0/λ0.3/λ0.3-seed917/λ0.3-ρ1）。**用户 spec 要点**：12 episode 查看热图前固定、含≥3 pretend、禁挑样；主图三组 A 固定窗口→B 内容 OT→C 内容+顺序；ρ=1 入附录示 stage-mass relaxation 且不超过主线；热图验收 λ0 有 query/class 条件化差异、λ0.3 更带状但不退化为固定模板；seed917 同 12 episode 轻量复核、主图用 seed916；同时冻结 λ-Acc/λ-OS 曲线+截断图+图注+一页结论。收包后本地离线绘图（读 dump 不前向），完成即创新点 1 完全收官，再转创新点 2（GPT-4 语料生成+纯文本过滤可并行、不改创新点 1 训练路径）。
+- 2026-09-09（收包⑯ + 严谨判断，实施/登账；Claude 独立核验）：Cursor 完成 plan_dump 五档 + 自行绘图/图注/一页结论，并抓修我 plan_dump 的 fp16 分数 bug（`ndarray.round(6)` 溢出 Inf → 先转 float64；π/npz 逐位不变、仅 JSON 分数受影响，图用 npz plan 不受影响）。**用户提出的 pretend 类问题——我按铁律独立核验**：`utils.smsm_c` 全 100 类含 11 个 pretend（ids 2/15/21/39/40/43/45/46/48/71/78），**CMN 测试段 76-99（24类）∩ pretend = {78} 仅 1 类**；dump 的 label_idx 证 12 episode 覆盖 22 类且 78 在 ep1/10/11。→ **"≥3 pretend" 在此划分事实不可满足**，内容盲扩 episode 只重复抽同类、不增类数。**判断：不影响创新点 1 收尾、无需修正/重发**；Cursor 保持内容盲 12 流+含唯一 pretend 类+透明记为基准局限，处理正确（学术诚信）。**热图验收我从 npz 亲算确认**：GT 类带状 λ0 0.335→λ0.3 0.554（更带状）、跨类 plan L1 λ0 0.064/λ0.3 0.049（均>0 内容条件化）、同类两 query L1 0.056（非退化固定模板）；主图 A 固定窗口阶梯→B 近均匀→C 软带状对角，含帧缩略图，渲染正确。一页结论/图注准确诚实。**创新点 1 完全收官**（数值终表 + 机制图 + 图注 + 一页结论；主线 tag `innov1-final`）。首轮误用 ep8（band0.72/0.92）已作废、改内容盲首个 pretend 的 ep1——自查纠正到位。下一步：创新点 2。
