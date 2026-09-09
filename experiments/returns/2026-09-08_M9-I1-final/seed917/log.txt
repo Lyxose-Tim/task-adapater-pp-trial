@@ -1,0 +1,16 @@
+[Message]M9-seed917-OT-lam0.3-rhoNone-2ndseed
+{'dataset': 'somethingcmn', 'method': 'taskadapter', 'stop_epoch': 10, 'n_query': 1, 'n_shot': 1, 'lr': 0.001}
+2026-09-08_12-12-25
+Epoch 0 | Loss 1.174052 Acc = 52.74% +- 1.37% | 2026-09-08_12-24-59
+Epoch 1 | Loss 0.877241 Acc = 66.20% +- 1.27% | 2026-09-08_12-37-31
+Epoch 2 | Loss 0.723318 Acc = 72.12% +- 1.22% | 2026-09-08_12-50-03
+Epoch 3 | Loss 0.639895 Acc = 76.38% +- 1.17% | 2026-09-08_13-02-33
+Epoch 4 | Loss 0.527252 Acc = 79.38% +- 1.09% | 2026-09-08_13-15-06
+Epoch 5 | Loss 0.479020 Acc = 81.94% +- 1.04% | 2026-09-08_13-28-19
+Epoch 6 | Loss 0.403769 Acc = 85.26% +- 0.98% | 2026-09-08_13-40-55
+Epoch 7 | Loss 0.375419 Acc = 86.42% +- 0.94% | 2026-09-08_13-53-26
+Epoch 8 | Loss 0.328549 Acc = 88.16% +- 0.90% | 2026-09-08_14-05-54
+Epoch 9 | Loss 0.309922 Acc = 88.58% +- 0.89% | 1000 Val Acc = 60.20% +- 1.35%
+best model! save...
+total tasks:1000	acc_mean:60.46	acc_std:1.2777462335847443
+1000 Test Acc = 60.46% +- 1.28%

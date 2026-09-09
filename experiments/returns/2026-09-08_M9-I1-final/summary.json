@@ -1,0 +1,23 @@
+{
+  "episodes": 10000,
+  "seed_eval": 916,
+  "commit": "0159bf8",
+  "rows": {
+    "B0": {"C0": 56.776, "C0_ci95": 0.401, "OS": 0.209, "OS_ci95": 0.127, "sanity": true},
+    "OT_lam0": {"C0": 57.042, "C0_ci95": 0.405, "OS": -0.0008, "OS_ci95": 0.0016, "sanity": true},
+    "OT_lam03_final": {"C0": 57.338, "C0_ci95": 0.409, "OS": 0.270, "OS_ci95": 0.097, "sanity": true},
+    "OT_lam03_rho1": {"C0": 57.292, "C0_ci95": 0.410, "OS": 0.216, "OS_ci95": 0.097, "sanity": true},
+    "OT_lam03_seed917": {"C0": 59.290, "C0_ci95": 0.412, "OS": 0.209, "OS_ci95": 0.097, "sanity": true}
+  },
+  "paired_dAcc_vs_B0_pt": {
+    "OT_lam0": {"mean": 0.266, "ci95": 0.248, "interval": [0.018, 0.514]},
+    "OT_lam03_final": {"mean": 0.562, "ci95": 0.271, "interval": [0.291, 0.833]},
+    "OT_lam03_rho1": {"mean": 0.516, "ci95": 0.270, "interval": [0.246, 0.786]}
+  },
+  "paired_dAcc_vs_lam03_pt": {
+    "B0": {"mean": -0.562, "ci95": 0.271},
+    "OT_lam0": {"mean": -0.296, "ci95": 0.246, "interval": [-0.542, -0.050]},
+    "OT_lam03_rho1": {"mean": -0.046, "ci95": 0.094, "interval": [-0.140, 0.048]}
+  },
+  "seed917_train_test": {"acc": 60.46, "ci95": 1.28, "val": 60.20}
+}

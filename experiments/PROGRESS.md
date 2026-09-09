@@ -1,5 +1,5 @@
 # PROGRESS — 跨会话进度
-最后更新：2026-09-08（用户冻结最终主线 ε0.1/λ0.3/ρ=None；M9 收官交接包⑮已发：4 行 10000ep 消融+主线2nd seed，代码 `0159bf8`；创新点 1 标题定为"语义条件、顺序正则化的软阶段分配"）
+最后更新：2026-09-09（⑮ 已收：创新点 1 收官。终表 ③ C0=57.34±0.41 OS=0.27±0.10；vs B0 配对 +0.56pt CI 不含 0；ρ=1 不超过主线）
 
 ## 本会话进展（2026-08-31，实施）
 - **仓库结构重构（对齐上游）**：`Task-Adapter-pp/` 文件夹取消，官方训练代码扁平化到**仓库根目录**（改进就在根文件）；`fsar/` 工具层复用根 `module_adapter`/`module_sem_adapter`（编码器统一为**官方架构+坑B+新增 checkpoint_path 参数**，B0 架构/初始化未变、ckpt 可加载、919/920 与前 3 种子同质）。GitHub `official-baseline`=纯上游、`main`=改进代码，两分支**已按用户要求 wipe 重推**（历史全新，旧全史存 `archive/pre-restructure` 本地 tag；ledger 内旧哈希 cf63db3/e765bb6/b55a59f 等指该 tag）。
@@ -26,7 +26,7 @@
 | M6 | 消融表＋曲线（验收三件套） | ✅ | 5 点 λ 曲线（B0/1/2/3/5）：λ∈[1,3] 无损平台 OS~0.33、λ=5 OS 0.82/Acc−1.66；图 `experiments/figures/3b_lambda_curve.png`；主推荐 λ=3。**创新点 3 闭环** |
 | M7 | 创新点 1：OT 软阶段分配（实现+步A平衡OT） | ✅ | 平衡OT(λ=0) OS≡0（ε01/1 精确0，ε05/5 CI含0）证实方案§1.2 命题（vs B0 固定窗口 0.21）；**ε*=0.1**（dev Acc 57.56 最高）；已入 ledger |
 | M8 | 创新点 1 步 B（λ 扫描，λ-Acc/λ-OS 双曲线） | ✅ | ε*=0.1；OS 0→0.20→0.30→0.54→0.69 单调↑；Acc 顶点 λ=0/0.3=57.56，λ=1/3 过正则；建议 λ*=0.3。图 `experiments/figures/i1b_lambda_curves.png` |
-| M9 | 创新点 1 收官消融终表 10000ep | ◐ | **用户冻结主线 ε0.1/λ0.3/ρ=None**（平衡 OT+顺序先验）。M9 交接包⑮已发（`0159bf8`）：4 行 @10000ep ①B0 ②λ0 ③+λ0.3(最终) ④+ρ1(负/中性消融) + 主线 2nd seed；复用 ckpt 不重训。dev 微网格 I_Acc=+0.37(不含0 但 λ=1 现象、不改主线、损 shrink)→ 附录。待收包 |
+| M9 | 创新点 1 收官消融终表 10000ep | ✅ | 最终主线 ε0.1/λ0.3/ρ=None。终表 ①56.78/OS0.21 ②57.04/OS0.00 ③**57.34/OS0.27** ④57.29/OS0.22。③ vs B0 配对 ΔAcc=+0.56±0.27（CI 不含 0），OS 显著注入。④ vs ③ CI 含 0。seed917 C0=59.29（高种子方差）。图 `experiments/figures/i1_m9_final.png`。**创新点 1 收官** |
 | 创新点 2 / 4a | 见 docs/创新点2·4 手册（已入库） | ☐ | 创新点 2 复用 ot_align；4a 纯推理融合 |
 
 ## 待用户拍板 / 阻塞项
@@ -51,12 +51,12 @@
 | R-12 seed 42 配置混淆 | ✅ | 随 R-06 迁出 default.yaml 链自然解决 |
 
 ## 云端待执行（交接包队列）
-- **交接包⑮ M9-I1-final（已发，待 Cursor 执行）**：`handoff/2026-09-08_M9-I1-final-ablation.md`，代码 `0159bf8`。创新点 1 收官消融终表：主线 seed917 第二训练 + 4 行 @10000ep diagnose（①B0 ②OTλ0 ③+λ0.3=最终主方法 ④+λ0.3ρ1=负/中性消融，复用 ckpt 不重训；① 可复用 M4）。~21h（建议按档断点增量收包）。GPU **空闲**。
-- 已收并登账：⑭ M9pre-I1-microgrid（I_Acc=+0.37 不含0但仍建议 ρ=None）、⑬ M9pre-I1-stepC、⑩ M8-I1B（λ*=0.3）、⑫ M8pre-I1-probe、⑪ M7-I1A-recheck、⑨ M7-I1A、⑧ M6-3b、⑦ M5-3b、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
-- **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30448**。GPU **空闲**。
+- **队列空**。⑮ 已收并登账。**创新点 1 收官**。下一步：阶段 E（π 热图，需 plan-dump 小工具，另包）与**创新点 2**（复用 ot_align）。
+- 已收并登账：⑮ M9-I1-final（终表 ③ 57.34/OS0.27）、⑭ M9pre-I1-microgrid、⑬ M9pre-I1-stepC、⑩ M8-I1B（λ*=0.3）、⑫ M8pre-I1-probe、⑪ M7-I1A-recheck、⑨ M7-I1A、⑧ M6-3b、⑦ M5-3b、⑥ M4-3a-final、⑤ M3-3a-dev、④ seed2more（B0=57.01±1.64）、③ multiseed、② 历史单跑。
+- **当前连云**：Host `gpuhome` → `sc01-ssh.gpuhome.cc` **Port 30221**。GPU **空闲**。
 
 ## 已回收待登账
--（空；⑭ 已入 ledger。建议主线 ρ*=None，待用户确认后发 M9 终表）
+-（空；⑮ 已入 ledger。创新点 1 收官）
 
 ## smoke 记录
 - 2026-08-29 **云端 smoke-官方管线-mini：通过**。RTX 3090，conda torch 2.1.0+cu121，CLIP JIT ViT-B-16.pt（OpenAI 官方 335MB）。Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%；Val 68% 保存 68.0.tar；终测 10 ep = 70.00%±11.43%。数值不作参考、不进 ledger。随后已启动全量 B0。
@@ -64,6 +64,7 @@
 - 2026-07-19 **smoke-官方管线-mini：通过（§8 六项全绿）**。官方代码（P1/P2＋环境坑修复后）在 mini 子集（8 类×8 段，seed 916）端到端：Epoch0 Loss 1.52/Acc 36% → Epoch1 Loss 1.04/Acc 59%（有限、下降、无 NaN）；Val 68% 触发 checkpoint；终测 10 ep 出数；**续跑通过**（load_weights+start_epoch 从 68.0.tar 恢复，Loss 0.93 续降）。RTX 4060 Laptop 8GB，fp32 显存峰值 ~7.9GB（贴边）。数值不作参考。
 - 2026-07-19 **R-08 对齐验证：通过**（`outputs/innovation3/ssv2/frame_alignment_r08.json`，64 段索引全等、像素差 JPEG 量级）
 - 2026-07-18 **O-MSA 等变性门控（R-02 修复后复跑）**：通过（`outputs/innovation3/ssv2/order_equivariance_post_r02.json`，真实 CLIP 权重，逐类编码口径，max_abs=0.0）→ **O-1 成立，3b 零成本负样本快速路径解锁**
+- 2026-09-08 **云端 smoke-M9-diagnose-20ep：通过**（新实例 port 30221）。`config_M9_smoke.yaml`（λ=0.3 ρ=None，I1B_lam03 ckpt）。20ep C0=52%（噪声大不作参考）；sanity_text_perturb=true。日志：云端 `workspace_M9_chain/m9_smoke20.log`。
 - 2026-09-07 **云端 smoke-I1-mg-robust-20ep：通过**。`config_robust_mg_smoke.yaml`（λ=0.3, ρ=None, 20ep）。四窗出 acc/OS/dAcc/stage_mass_relax/profile/per_episode；ρ=None 时 relax≈1e-7、profile 均匀 1/3；normal Acc=56%（20ep 噪声大，不作参考）。日志：云端 `workspace_mg_chain/mg_smoke20.log`。
 - 2026-09-04 **云端 smoke-I1A-mini-ot：通过**。`TA_CONFIG=config_mini_ot.yaml`（align_mode=ot, ε=0.05, λ=0）。Epoch0 Loss 1.533 Acc 35% → Epoch1 Loss 1.063 Acc 58%；Val 64% 保存；终测 10 ep = 70.00%±11.43%。无 NaN。数值不作参考。日志：`returns/2026-09-03_M7-I1A/smoke/I1A_mini_smoke.log`。
 -（codex 遗留）smoke-innovation3-ssv2 / hmdb51、resume 探针、吞吐测量：有产物，历史参考；`outputs/innovation3/ssv2/b0/` 的 2 epoch 产物归类为本地验证性质，数字不采信、不进 ledger
@@ -79,8 +80,8 @@
 5. **✅ 交接包⑩已收包**：OS 随 λ 单调↑（0/0.20/0.30/0.54/0.69）；Acc 内点最优 **λ*=0.3（57.56）**，λ=1/3 Acc 掉到 B0 以下。图 `experiments/figures/i1b_lambda_curves.png`。产物 `returns/2026-09-05_M8-I1B/`。
 6. **✅ 交接包⑬已收包**：ρ∈{None,10,1,0.1} Acc 57.56/57.48/**57.58**/57.40；OS 0.30/0.43/0.29/0.24。截断 ΔAcc 点估计 **ρ=1 掐头最轻（−0.24）**、ρ=10 三窗最平；ρ=0.1 更差；B0 固定窗口也稳。全部 ΔAcc CI 含 0。图 `experiments/figures/i1c_truncation_dacc.png`。产物 `returns/2026-09-06_M9pre-I1-stepC/`。建议 **ρ*=1**。
 7. **✅ 微网格交接包⑭已收包**：产物 `returns/2026-09-07_M9pre-I1-microgrid/`。I_Acc=+0.37±0.25（CI 不含 0）；(1,1) 终测 56.46 / robust 56.54，仍低于 (0.3,None) 57.07；shrink DiD=−0.59 不含 0。图 `experiments/figures/i1mg_microgrid.png`。
-8. **✅ 用户冻结主线 ε0.1/λ0.3/ρ=None + M9 交接包⑮已发（本会话）**：4 行 @10000ep（①B0 ②λ0 ③+λ0.3=最终 ④+λ0.3ρ1=负/中性消融，复用 ckpt 不重训）+ 主线 seed917 2nd seed。代码 `0159bf8`（无新代码，diagnose 已 M4 验证）。**创新点 1 标题定为"语义条件、顺序正则化的软阶段分配"**，不平衡作扩展消融。不用终表重选 λ/ρ。
-9. **待收包⑮后**：组装终表入 ledger+PROGRESS → 创新点 1 收官；随后 阶段 E（π 热图，需 plan-dump 小工具，另包）与**创新点 2**（复用 ot_align）；创新点 2/4a 手册已入库。
+8. **✅ 用户冻结主线 ε0.1/λ0.3/ρ=None + M9 交接包⑮已收包**：产物 `returns/2026-09-08_M9-I1-final/`。终表 ①56.78/OS0.21 ②57.04/OS0.00 ③**57.34/OS0.27** ④57.29/OS0.22；③ vs B0 配对 +0.56pt（CI 不含 0）；④ 不超过 ③。seed917 终测 60.46 / C0 59.29。图 `experiments/figures/i1_m9_final.png`。**创新点 1 收官**。
+9. **下一步**：阶段 E（π 热图，需 plan-dump 小工具，另包）与**创新点 2**（复用 ot_align）；创新点 2/4a 手册已入库。不用 10000ep 重选 λ/ρ。
 
 ## 决策日志
 - 2026-07-17：文档组织采用路由表方案，不物理拆分；《创新点1_实验执行清单》在 B0 定标后产出；Claude Code 运行于本地＝写码＋CPU 单测，一切 GPU 任务走交接包协议。
@@ -106,3 +107,4 @@
 - 2026-09-07（用户拍板 微网格+ρ10→1，实施）：用户选**先跑 dev 2×2 微网格**，工作 ρ* 初定 10；但我实现微网格代码时机制诊断发现 **ρ=10 的 τ=ρ/(ρ+ε)=0.99、col_residual≈0.008 ≈平衡 OT**（Sinkhorn 阻尼结构性质、与特征无关；单测证 col_residual 随 ρ 减小单调增、平衡档≈0），据此回报——用户**改微网格不平衡臂 ρ=10→ρ=1**（τ=0.91、col_residual~0.066 中度不平衡）做**唯一一次真实补偿检验**：λ∈{0.3,1}×ρ∈{None,1}，仅新训 (1,1)，四格同 2500 配对 dev；报 Acc/OS/三截断 ΔAcc、交互 I_Acc=[Acc(1,1)−Acc(1,None)]−[Acc(0.3,1)−Acc(0.3,None)]、三截断同型 DiD+配对 CI、逐条件 stage_mass mean/median/p95 及分布（掐头→早阶段↓/去尾→晚阶段↓核查）。**冻结逻辑**：交互明确为正才议不平衡主线，否则立即冻结 ε0.1/λ0.3/**ρ=None**；不再扩 ρ 网格、不用 M9 10000ep test 重选参。改动理由已按用户要求先写入 ledger（机制诊断依据、(1,1) 结果未知前）。实施：robust_eval 加 OS（复用 semantic_scores+perm）+stage_mass 放松(col_residual)/分布(stage_mass_mean[K])+per_episode dump（供跨配置 DiD）；ot_plan_stats 加 stage_mass_mean；163/163。微网格交接包⑭ @ `30ed45d` 发 Cursor。
 - 2026-09-08（收包⑭，实施/登账；Claude 从 per_episode dump 独立重算 I_Acc/DiD）：Cursor 预填 ledger(6 行)/PROGRESS + `interaction.json`，我从四格 2500 配对 `per_episode_fused` **独立重算逐位吻合**：**I_Acc=+0.368±0.246 CI[+0.122,+0.614] 不含 0**（Acc(1,1)−Acc(1,None)=+0.304、Acc(0.3,1)−Acc(0.3,None)=−0.064）；DiD head/tail/shrink=−0.304/−0.136/**−0.592**（shrink CI[−0.934,−0.250] 不含 0，**不利**）；四格 normal Acc 57.07/57.01/56.24/56.54。stage_mass 机制确认：ρ=1 relax 0.0135/0.0207 ≫ ρ=None 恒 0（**真不平衡**）；掐头→早阶段(k0)、去尾→晚阶段(k2) 质量按预期方向↓但量级 ~5e-5（分布几乎不动）。(1,1) 训练 10ep loss1.18→0.302 无 NaN、终测 56.46/Val56.06。**判读**：λ×ρ 交互统计真实但① 是 λ=1（非冻结主线 λ=0.3）现象、② (1,1) 56.54 仍低于平台 (0.3,None) 57.07 0.53pt、③ 主线 λ=0.3 上 ρ=1 为 −0.06pt 噪声、④ ρ=1 损 shrink 鲁棒（DiD 显著负）→ **不平衡不升级主线**。按用户预锁"交互明确则讨论"，**建议冻结 ε0.1/λ0.3/ρ=None、(1,1)/ρ 作交互附录，待用户确认后发 M9 终表**。
 - 2026-09-08（用户拍板 冻结主线+M9 发包，实施）：**最终主线冻结 ε=0.1 / λ=0.3 / ρ=None / iters=30**（平衡 OT + 顺序先验）。用户理由：I_Acc 显著仅证 λ×ρ 有交互、非证不平衡全局更优；ρ=1 在 λ=0.3 上 Acc 仅 −0.06；(1,1) 补偿后仍低于 (0.3,None) 0.53pt；截断无一致收益且 shrink 交互显著负；stage_mass 生效≠主任务受益。**M9 终表 4 行 @10000ep**：①B0 ②ε0.1λ0 ③ε0.1λ0.3ρNone(**最终主方法**) ④ε0.1λ0.3ρ1(不平衡边际**直接负/中性消融**，如实保留、不据终表重选)。(0.3,1) 复用 I1C_rho1 只补评测；**(1,1) 不上 10000ep**；完整 2×2 微网格/I_Acc/DiD/stage_mass → **附录/机制分析**，结论表述："ρ 可部分补偿过强 λ，但未超过最优平衡 OT、亦无一致截断鲁棒收益"。主线 (0.3,None) **追加 seed917 第二训练**。**创新点 1 标题**由"不平衡 OT"**收缩为"语义条件、顺序正则化的软阶段分配"**，不平衡作扩展消融。实施：M9 六配置（config_M9_row{1,2,3,4}+seed917_train+row3_seed917）@ `0159bf8`（无新代码，diagnose 诊断路径 M4 已验证、163/163）；收官交接包⑮发 Cursor。
+- 2026-09-09（收包⑮，实施/登账；Claude 从 per_episode_c0_fused 独立重算配对 ΔAcc）：**创新点 1 收官**。Cursor 预填 ledger(6 行)/PROGRESS + summary.json，我从五行 10000ep 同 seed916 流 `per_episode_c0_fused` **独立重算逐位吻合**：终表 ①B0 56.78±0.40/OS0.21 ②OTλ0 57.04±0.41/OS≈0(−0.0008±0.0016) ③OTλ0.3(最终) **57.34±0.41/OS0.27±0.10** ④OTλ0.3ρ1 57.29±0.41/OS0.22；配对 ΔAcc(③−①)=**+0.562±0.271 CI[+0.29,+0.83] 不含0**、(②−①)=+0.266±0.248 CI[+0.02,+0.51] 刚不含0、(④−③)=−0.046±0.094 **含0**（ρ=1 不超过主线）；全 sanity=true。seed917：C0=59.29±0.41（终测 60.46）——高种子，③ 双种子 C0 差 +1.95pt（seed 方差大）。**收官诚实框定**（须入论文）：① OS 价值是**可控性**——② 平衡 OT 把 OS 精确压到 0（10000ep 证 §1.2 命题），③ λ=0.3 把 OS 调回 0.27（≈B0 0.21、CI 重叠，**非"比 B0 更高"**），全程 Acc 不降反升；② Acc 主张基于**同 seed916 配对**（+0.56pt CI 不含0），但 seed 方差 ~2pt、③ 仅 2 seed，故绝对 Acc 对 seed 敏感、改进主张靠配对内检验而非多种子均值；③ ②vs① 的 +0.27 仅"刚不含0"（边际）。**创新点 1 完整叙事成立**：语义条件+顺序正则化软阶段分配，相对固定窗口精度中性偏升且顺序可控；不平衡 ρ 无额外收益（附录）。下一步：阶段 E（π 热图）+ 创新点 2。
